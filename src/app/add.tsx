@@ -1,11 +1,19 @@
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import db from '../database/db';
+
+const CATEGORIES = [
+  { id: 1, label: 'Top' },
+  { id: 2, label: 'Bottom' },
+  { id: 3, label: 'Shoes' },
+  { id: 4, label: 'Outerwear' }
+];
 
 export default function AddItemScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [categoryId, setCategoryId] = useState<number | null>(null); 
   const router = useRouter();
 
   const pickImage = async () => {
@@ -30,20 +38,26 @@ export default function AddItemScreen() {
     }
   };
 
-  const saveItem = async () => {
+  const saveItem = () => {
     if (!imageUri) {
+      Alert.alert('Missing Image', 'Please select an image from your gallery.');
+      return; 
+    }
+    if (!categoryId) {
+      Alert.alert('Missing Category', 'Please select a category for this item.');
       return;
     }
 
     try {
       db.runSync(
         'INSERT INTO clothes (image_uri, category_id, color, season) VALUES (?, ?, ?, ?)',
-        [imageUri, null, null, null]
+        [imageUri, categoryId, null, null]
       );
 
       Alert.alert('Success!', 'The item was added to your DB.');
       
       setImageUri(null);
+      setCategoryId(null);
       router.back();
 
     } catch (error) {
@@ -53,7 +67,7 @@ export default function AddItemScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={true}>
       <Text style={styles.title}>Add a New Item</Text>
 
       <View style={styles.imageContainer}>
@@ -65,31 +79,73 @@ export default function AddItemScreen() {
       </View>
 
       <TouchableOpacity style={styles.button} onPress={pickImage}>
-        <Text style={styles.buttonText}>Open Gallery</Text>
+        <Text style={styles.buttonText}>{imageUri ? 'Change Photo' : 'Open Gallery'}</Text>
       </TouchableOpacity>
 
       {imageUri && (
+        <View style={styles.categorySection}>
+          <Text style={styles.sectionTitle}>Select Category:</Text>
+          <View style={styles.chipsContainer}>
+            {CATEGORIES.map((cat) => (
+              <TouchableOpacity
+                key={cat.id}
+                style={[
+                  styles.chip,
+                  categoryId === cat.id && styles.chipActive
+                ]}
+                onPress={() => setCategoryId(cat.id)}
+              >
+                <Text style={[
+                  styles.chipText,
+                  categoryId === cat.id && styles.chipTextActive
+                ]}>
+                  {cat.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      )}
+
+      {imageUri && categoryId && (
         <TouchableOpacity style={styles.saveButton} onPress={saveItem}>
           <Text style={styles.saveButtonText}>Save to Wardrobe</Text>
         </TouchableOpacity>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { 
-    flex: 1, 
-    padding: 24, 
+    flexGrow: 1, 
+    padding: 24,
     backgroundColor: '#F7F9FC', 
-    alignItems: 'center' 
-},
+    alignItems: 'center', 
+    paddingBottom: 40 
+  },
+  header: { 
+    width: '100%', 
+    alignItems: 'flex-start', 
+    marginBottom: 16, 
+    marginTop: 10 
+  },
+  backButton: { 
+    paddingVertical: 8, 
+    paddingRight: 16 
+  },
+  backText: { 
+    fontSize: 16, 
+    color: '#2B6CB0', 
+    fontWeight: '600' 
+  },
   title: { 
     fontSize: 28, 
     fontWeight: 'bold', 
-    marginBottom: 32, 
-    color: '#1A202C' 
-},
+    marginBottom: 24, 
+    color: '#1A202C', 
+    textAlign: 'center' 
+  },
   imageContainer: { 
     width: 250, 
     height: 330, 
@@ -101,7 +157,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden' 
 },
   image: { 
-    width: '100%', 
+    width: '100%',
     height: '100%' 
 },
   placeholderText: { 
@@ -115,21 +171,57 @@ const styles = StyleSheet.create({
     borderRadius: 12, 
     width: '100%', 
     alignItems: 'center', 
-    marginBottom: 16 
-},
+    marginBottom: 24 
+  },
   buttonText: { 
     color: '#FFFFFF', 
     fontSize: 16, 
     fontWeight: '600' 
-},
+  },
+  categorySection: { 
+    width: '100%', 
+    marginBottom: 24 
+  },
+  sectionTitle: { 
+    fontSize: 16, 
+    fontWeight: '600', 
+    color: '#4A5568', 
+    marginBottom: 12 
+  },
+  chipsContainer: { 
+    flexDirection: 'row', 
+    flexWrap: 'wrap', 
+    gap: 10 
+  },
+  chip: { 
+    paddingVertical: 8, 
+    paddingHorizontal: 16, 
+    backgroundColor: '#EDF2F7', 
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E2E8F0'
+  },
+  chipActive: { 
+    backgroundColor: '#2B6CB0',
+    borderColor: '#2B6CB0'
+  },
+  chipText: { 
+    color: '#4A5568', 
+    fontWeight: '500' 
+  },
+  chipTextActive: { 
+    color: '#FFFFFF', 
+    fontWeight: 'bold' 
+  },
   saveButton: { 
     backgroundColor: '#38A169', 
     paddingVertical: 14, 
     paddingHorizontal: 32, 
     borderRadius: 12, 
     width: '100%', 
-    alignItems: 'center' 
-},
+    alignItems: 'center', 
+    marginTop: 10 
+  },
   saveButtonText: { 
     color: '#FFFFFF', 
     fontSize: 16, 
