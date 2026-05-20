@@ -14,7 +14,7 @@ export default function HomeScreen() {
       <View style={styles.actionContainer}>
         <TouchableOpacity 
           style={styles.primaryButton}
-          onPress={() => router.push('/wardrobe')}
+          onPress={() => router.push('/collection')}
         >
           <Text style={styles.primaryButtonText}>My Collection</Text>
         </TouchableOpacity>
