@@ -12,10 +12,17 @@ type ClothesItem = {
 };
 
 const CATEGORY_MAP: Record<number, string> = {
-  1: 'Top',
-  2: 'Bottom',
-  3: 'Shoes',
-  4: 'Outerwear'
+  1: 'Tshirt',
+  2: 'Top',
+  3: 'Blouse',
+  4: 'Jeans',
+  5: 'Pants',
+  6: 'Skirt',
+  7: 'Dress',
+  8: 'Shoes',
+  9: 'Hat',
+  10: 'Jacket',
+  11: 'Purse'
 };
 
 export default function WardrobeScreen() {

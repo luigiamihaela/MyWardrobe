@@ -5,15 +5,28 @@ import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } fr
 import db from '../database/db';
 
 const CATEGORIES = [
-  { id: 1, label: 'Top' },
-  { id: 2, label: 'Bottom' },
-  { id: 3, label: 'Shoes' },
-  { id: 4, label: 'Outerwear' }
+  { id: 1, label: 'Tshirt' },
+  { id: 2, label: 'Top' },
+  { id: 3, label: 'Blouse' },
+  { id: 4, label: 'Jeans' },
+  { id: 5, label: 'Pants' },
+  { id: 6, label: 'Skirt' },
+  { id: 7, label: 'Dress' },
+  { id: 8, label: 'Shoes' },
+  { id: 9, label: 'Hat' },
+  { id: 10, label: 'Jacket' },
+  { id: 11, label: 'Purse' }
 ];
 
+const SEASONS = ['Summer', 'Winter', 'Spring', 'Autumn', 'All Year'];
+
+const COLORS = ['Black', 'White', 'Gray', 'Blue', 'Red', 'Green','Yellow',
+  'Purple', 'Pink', 'Orange', 'Brown', 'Beige/Cream', 'Multicolor'];
 export default function AddItemScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [categoryId, setCategoryId] = useState<number | null>(null); 
+  const [season, setSeason] = useState<string | null>(null);
+  const [color, setColor] = useState<string | null>(null);
   const router = useRouter();
 
   const pickImage = async () => {
@@ -47,27 +60,37 @@ export default function AddItemScreen() {
       Alert.alert('Missing Category', 'Please select a category for this item.');
       return;
     }
+    if (!season) { 
+      Alert.alert('Missing Info', 'Please select a season.'); 
+      return; 
+    }
+    if (!color) { 
+      Alert.alert('Missing Info', 'Please select a color.'); 
+      return; 
+    }
 
     try {
       db.runSync(
         'INSERT INTO clothes (image_uri, category_id, color, season) VALUES (?, ?, ?, ?)',
-        [imageUri, categoryId, null, null]
+        [imageUri, categoryId, color, season]
       );
 
-      Alert.alert('Success!', 'The item was added to your DB.');
+      Alert.alert('Congrats!', 'A new item was added to your collection.');
       
       setImageUri(null);
       setCategoryId(null);
+      setSeason(null);
+      setColor(null);
       router.back();
 
     } catch (error) {
-      console.error('Error saving in database:', error);
+      console.error('Error saving in the database:', error);
       Alert.alert('Error', 'Could not save the item.');
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={true}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={true}>
       <Text style={styles.title}>Add a New Item</Text>
 
       <View style={styles.imageContainer}>
@@ -83,34 +106,64 @@ export default function AddItemScreen() {
       </TouchableOpacity>
 
       {imageUri && (
-        <View style={styles.categorySection}>
-          <Text style={styles.sectionTitle}>Select Category:</Text>
-          <View style={styles.chipsContainer}>
-            {CATEGORIES.map((cat) => (
-              <TouchableOpacity
-                key={cat.id}
-                style={[
-                  styles.chip,
-                  categoryId === cat.id && styles.chipActive
-                ]}
-                onPress={() => setCategoryId(cat.id)}
-              >
-                <Text style={[
-                  styles.chipText,
-                  categoryId === cat.id && styles.chipTextActive
-                ]}>
-                  {cat.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
+        <View style={styles.filtersContainer}>
+  
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Category:</Text>
+            <View style={styles.chipsContainer}>
+              {CATEGORIES.map((cat) => (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={[styles.chip, categoryId === cat.id && styles.chipActive]}
+                  onPress={() => setCategoryId(cat.id)}
+                >
+                  <Text style={[styles.chipText, categoryId === cat.id && styles.chipTextActive]}>
+                    {cat.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-        </View>
-      )}
 
-      {imageUri && categoryId && (
-        <TouchableOpacity style={styles.saveButton} onPress={saveItem}>
-          <Text style={styles.saveButtonText}>Save to Wardrobe</Text>
-        </TouchableOpacity>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Season:</Text>
+            <View style={styles.chipsContainer}>
+              {SEASONS.map((s) => (
+                <TouchableOpacity
+                  key={s}
+                  style={[styles.chip, season === s && styles.chipActive]}
+                  onPress={() => setSeason(s)}
+                >
+                  <Text style={[styles.chipText, season === s && styles.chipTextActive]}>
+                    {s}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Color:</Text>
+            <View style={styles.chipsContainer}>
+              {COLORS.map((c) => (
+                <TouchableOpacity
+                  key={c}
+                  style={[styles.chip, color === c && styles.chipActive]}
+                  onPress={() => setColor(c)}
+                >
+                  <Text style={[styles.chipText, color === c && styles.chipTextActive]}>
+                    {c}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          <TouchableOpacity style={styles.saveButton} onPress={saveItem}>
+            <Text style={styles.saveButtonText}>Save to Wardrobe</Text>
+          </TouchableOpacity>
+          
+        </View>
       )}
     </ScrollView>
   );
@@ -118,26 +171,13 @@ export default function AddItemScreen() {
 
 const styles = StyleSheet.create({
   container: { 
-    flexGrow: 1, 
-    padding: 24,
-    backgroundColor: '#F7F9FC', 
+    flex: 1,
+    backgroundColor: '#F7F9FC',
+  },
+  contentContainer: { 
+    padding: 24, 
     alignItems: 'center', 
-    paddingBottom: 40 
-  },
-  header: { 
-    width: '100%', 
-    alignItems: 'flex-start', 
-    marginBottom: 16, 
-    marginTop: 10 
-  },
-  backButton: { 
-    paddingVertical: 8, 
-    paddingRight: 16 
-  },
-  backText: { 
-    fontSize: 16, 
-    color: '#2B6CB0', 
-    fontWeight: '600' 
+    paddingBottom: 60 
   },
   title: { 
     fontSize: 28, 
@@ -178,8 +218,10 @@ const styles = StyleSheet.create({
     fontSize: 16, 
     fontWeight: '600' 
   },
-  categorySection: { 
-    width: '100%', 
+  filtersContainer: { 
+    width: '100%' 
+  },
+  section: { 
     marginBottom: 24 
   },
   sectionTitle: { 
