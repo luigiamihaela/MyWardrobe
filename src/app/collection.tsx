@@ -11,6 +11,13 @@ type ClothesItem = {
   season: string | null;
 };
 
+const CATEGORY_MAP: Record<number, string> = {
+  1: 'Top',
+  2: 'Bottom',
+  3: 'Shoes',
+  4: 'Outerwear'
+};
+
 export default function WardrobeScreen() {
   const [clothes, setClothes] = useState<ClothesItem[]>([]);
 
@@ -31,13 +38,21 @@ export default function WardrobeScreen() {
 
   const renderItem = ({ item }: { item: ClothesItem }) => (
     <View style={styles.card}>
-      <Image source={{ uri: item.image_uri }} style={styles.image} />
+      <View style={styles.imageContainer}>
+        <Image source={{ uri: item.image_uri }} style={styles.image} />
+      </View>
+      
+      <View style={styles.infoContainer}>
+        <Text style={styles.categoryText}>
+          {item.category_id ? CATEGORY_MAP[item.category_id] : 'No category'}
+        </Text>
+      </View>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>My Closet</Text>
+      <Text style={styles.title}>My Collection</Text>
       
       {clothes.length === 0 ? (
         <View style={styles.emptyContainer}>
@@ -95,7 +110,6 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '48%',
-    aspectRatio: 3 / 4,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     overflow: 'hidden',
@@ -105,9 +119,29 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3, 
   },
+  imageContainer: {
+    width: '100%',
+    aspectRatio: 3 / 4, 
+    backgroundColor: '#E2E8F0',
+  },
   image: {
     width: '100%',
     height: '100%',
+  },
+  infoContainer: {
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#F7F9FC',
+  },
+  categoryText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#4A5568',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   listPadding: {
     paddingBottom: 40,
