@@ -28,9 +28,9 @@ export default function HomeScreen() {
 
         <TouchableOpacity 
           style={styles.outlineButton}
-          onPress={() => router.push('/outfits')}
+          onPress={() => router.push('/builder')}
         >
-          <Text style={styles.outlineButtonText}>Style Me</Text>
+          <Text style={styles.outlineButtonText}>Create An Outfit</Text>
         </TouchableOpacity>
       </View>
     </View>
