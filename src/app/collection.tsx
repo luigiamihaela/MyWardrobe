@@ -1,6 +1,6 @@
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { FlatList, Image, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import db from '../database/db';
 
 type ClothesItem = {
@@ -27,6 +27,7 @@ const CATEGORY_MAP: Record<number, string> = {
 
 export default function WardrobeScreen() {
   const [clothes, setClothes] = useState<ClothesItem[]>([]);
+  const router = useRouter();
 
   useFocusEffect(
     useCallback(() => {
@@ -43,6 +44,29 @@ export default function WardrobeScreen() {
     }
   };
 
+  const deleteItem = (id: number) => {
+    Alert.alert(
+      'Delete Item',
+      'Are you sure you want to throw away this item? It will also be removed from any outfits using it.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Delete', 
+          style: 'destructive',
+          onPress: () => {
+            try {
+              db.runSync('DELETE FROM clothes WHERE id = ?', [id]);
+              loadClothes(); 
+            } catch (error) {
+              console.error('Error deleting item:', error);
+              Alert.alert('Error', 'Could not delete the item.');
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const renderItem = ({ item }: { item: ClothesItem }) => (
     <View style={styles.card}>
       <View style={styles.imageContainer}>
@@ -53,12 +77,16 @@ export default function WardrobeScreen() {
         <Text style={styles.categoryText}>
           {item.category_id ? CATEGORY_MAP[item.category_id] : 'No category'}
         </Text>
+        <TouchableOpacity onPress={() => deleteItem(item.id)} style={styles.deleteButton}>
+          <Text style={styles.deleteText}>Delete</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 
   return (
     <View style={styles.container}>
+
       <Text style={styles.title}>My Collection</Text>
       
       {clothes.length === 0 ? (
@@ -88,12 +116,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 24,
   },
+  backButton: {
+    marginBottom: 16,
+    paddingVertical: 8,
+  },
+  backText: {
+    fontSize: 16,
+    color: '#2B6CB0',
+    fontWeight: '600',
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 24,
     color: '#1A202C',
-    paddingHorizontal: 8,
     textAlign: 'center',
   },
   emptyContainer: {
@@ -137,18 +173,26 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     paddingVertical: 12,
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
     borderTopWidth: 1,
     borderTopColor: '#F7F9FC',
   },
   categoryText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '700',
     color: '#4A5568',
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+  },
+  deleteButton: {
+    padding: 4,
+  },
+  deleteText: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#E53E3E',
   },
   listPadding: {
     paddingBottom: 40,
