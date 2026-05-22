@@ -11,27 +11,28 @@ export default function HomeScreen() {
         <Text style={styles.subtitle}>What would you like to wear today?</Text>
       </View>
 
-      <View style={styles.actionContainer}>
-        <TouchableOpacity 
-          style={styles.primaryButton}
-          onPress={() => router.push('/collection')}
-        >
-          <Text style={styles.primaryButtonText}>My Collection</Text>
-        </TouchableOpacity>
+      <View style={styles.buttonsContainer}>
+        
+        <View style={styles.group}>
+          <TouchableOpacity style={styles.solidButtonBlue} onPress={() => router.push('/add')}>
+            <Text style={styles.solidButtonText}>+ Add a New Item</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.secondaryButton}
-          onPress={() => router.push('/add')}
-        >
-          <Text style={styles.secondaryButtonText}>+ Add a New Item</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.outlineButtonBlue} onPress={() => router.push('/collection')}>
+            <Text style={styles.outlineButtonTextBlue}>My Collection</Text>
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity 
-          style={styles.outlineButton}
-          onPress={() => router.push('/builder')}
-        >
-          <Text style={styles.outlineButtonText}>Create An Outfit</Text>
-        </TouchableOpacity>
+        <View style={styles.group}>
+          <TouchableOpacity style={styles.solidButtonGreen} onPress={() => router.push('/builder')}>
+            <Text style={styles.solidButtonText}>+ Create An Outfit</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.outlineButtonGreen} onPress={() => router.push('/outfits')}>
+            <Text style={styles.outlineButtonTextGreen}>My Outfits</Text>
+          </TouchableOpacity>
+        </View>
+
       </View>
     </View>
   );
@@ -58,42 +59,65 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#718096',
   },
-  actionContainer: {
-    gap: 16,
+  buttonsContainer: {
+    width: '100%',
   },
-  primaryButton: {
+  group: {
+    marginBottom: 12,
+  },
+  solidButtonBlue: {
     backgroundColor: '#2B6CB0',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
-  primaryButtonText: {
-    color: '#FFFFFF',
+  outlineButtonBlue: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: '#2B6CB0',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  outlineButtonTextBlue: {
+    color: '#2B6CB0',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
-  secondaryButton: {
+  solidButtonGreen: {
     backgroundColor: '#38A169',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
-  secondaryButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  outlineButton: {
+  outlineButtonGreen: {
     backgroundColor: 'transparent',
-    paddingVertical: 16,
+    borderWidth: 2,
+    borderColor: '#38A169',
+    paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#2B6CB0',
   },
-  outlineButtonText: {
-    color: '#2B6CB0',
+  outlineButtonTextGreen: {
+    color: '#38A169',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
+  },
+  solidButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
