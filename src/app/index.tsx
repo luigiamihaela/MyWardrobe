@@ -33,6 +33,12 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
+        <View style={styles.group}>
+          <TouchableOpacity style={styles.solidButtonPurple} onPress={() => router.push('/generator')}>
+            <Text style={styles.solidButtonText}>✨ Outfit Generator</Text>
+          </TouchableOpacity>
+        </View>
+
       </View>
     </View>
   );
@@ -119,5 +125,17 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  solidButtonPurple: {
+    backgroundColor: '#805AD5',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
 });
