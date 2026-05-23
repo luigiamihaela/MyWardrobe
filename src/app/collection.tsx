@@ -290,6 +290,7 @@ const styles = StyleSheet.create({
     color: '#4A5568',
     textTransform: 'uppercase',
     marginBottom: 8,
+    textAlign: 'center'
   },
   actionsContainer: {
     flexDirection: 'row',
