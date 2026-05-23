@@ -1,5 +1,4 @@
 import * as ImagePicker from 'expo-image-picker';
-import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import db from '../database/db';
@@ -27,7 +26,6 @@ export default function AddItemScreen() {
   const [categoryId, setCategoryId] = useState<number | null>(null); 
   const [season, setSeason] = useState<string | null>(null);
   const [color, setColor] = useState<string | null>(null);
-  const router = useRouter();
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -81,7 +79,6 @@ export default function AddItemScreen() {
       setCategoryId(null);
       setSeason(null);
       setColor(null);
-      router.back();
 
     } catch (error) {
       console.error('Error saving in the database:', error);

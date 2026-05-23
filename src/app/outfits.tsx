@@ -1,4 +1,4 @@
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import db from '../database/db';
@@ -16,7 +16,6 @@ type OutfitRecord = {
 };
 
 export default function SavedOutfitsScreen() {
-  const router = useRouter();
   const [outfits, setOutfits] = useState<OutfitRecord[]>([]);
 
   useFocusEffect(

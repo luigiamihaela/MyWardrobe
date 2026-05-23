@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import db from '../database/db';
@@ -16,7 +15,6 @@ const COLORS = ['Black', 'White', 'Gray', 'Blue', 'Red', 'Green', 'Yellow', 'Pur
 const NEUTRAL_COLORS = ['Black', 'White', 'Gray', 'Beige/Cream', 'Brown'];
 
 export default function SmartGeneratorScreen() {
-  const router = useRouter();
   
   const [selectedSeason, setSelectedSeason] = useState<string>('Summer');
   const [targetColor, setTargetColor] = useState<string>('Any Color');

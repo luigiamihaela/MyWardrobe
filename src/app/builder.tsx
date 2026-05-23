@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, FlatList, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import db from '../database/db';
@@ -12,7 +11,6 @@ type ClothesItem = {
 type SlotType = 'top' | 'bottom' | 'dress' | 'shoes' | 'outerwear' | 'hat' | 'purse';
 
 export default function OutfitBuilderScreen() {
-  const router = useRouter();
 
   const [outfit, setOutfit] = useState<Record<SlotType, ClothesItem | null>>({
     top: null,
@@ -146,8 +144,6 @@ export default function OutfitBuilderScreen() {
         hat: null, 
         purse: null,
       });
-      
-      router.back();
     } catch (error) {
       console.error('Error saving outfit:', error);
       Alert.alert('Error', 'Could not save the outfit.');
