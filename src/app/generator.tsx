@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import db from '../database/db';
 
 type ClothesItem = {
@@ -28,6 +28,8 @@ export default function SmartGeneratorScreen() {
     shoes: ClothesItem | null;
     outerwear: ClothesItem | null;
   } | null>(null);
+  const [isSaveModalVisible, setSaveModalVisible] = useState(false);
+  const [outfitNameInput, setOutfitNameInput] = useState('');
 
   const getRandomItem = (array: ClothesItem[]) => {
     if (array.length === 0) return null;
@@ -157,6 +159,38 @@ export default function SmartGeneratorScreen() {
     );
   };
 
+  const handleSaveGeneratedOutfit = () => {
+    if (!generatedOutfit) return;
+    setOutfitNameInput('');
+    setSaveModalVisible(true);
+  };
+
+  const executeSave = (outfitName: string) => {
+    if (!generatedOutfit) return;
+    try {
+      db.runSync(
+        `INSERT INTO outfits (name, dress_id, top_id, bottom_id, shoes_id, outerwear_id, hat_id, purse_id) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          outfitName,
+          generatedOutfit.dress?.id || null,
+          generatedOutfit.top?.id || null,
+          generatedOutfit.bottom?.id || null,
+          generatedOutfit.shoes?.id || null,
+          generatedOutfit.outerwear?.id || null,
+          null,
+          null
+        ]
+      );
+
+      Alert.alert('Success!', `Outfit "${outfitName}" was saved to your collection.`);
+      setGeneratedOutfit(null);
+    } catch (error) {
+      console.error('Error saving generated outfit:', error);
+      Alert.alert('Error', 'Could not save the outfit.');
+    }
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
@@ -165,7 +199,7 @@ export default function SmartGeneratorScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>1. Select Season:</Text>
+        <Text style={styles.sectionTitle}>1. Season:</Text>
         <View style={styles.chipsContainer}>
           {SEASONS.map((s) => (
             <TouchableOpacity key={s} style={[styles.chip, selectedSeason === s && styles.chipActive]} onPress={() => setSelectedSeason(s)}>
@@ -176,7 +210,7 @@ export default function SmartGeneratorScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>2. Select Accent Color (Optional):</Text>
+        <Text style={styles.sectionTitle}>2. Accent Color:</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
           <TouchableOpacity 
             style={[styles.chip, targetColor === 'Any Color' && styles.chipActiveColor]} 
@@ -215,7 +249,7 @@ export default function SmartGeneratorScreen() {
       </View>
 
       <TouchableOpacity style={styles.generateButton} onPress={generateOutfit}>
-        <Text style={styles.generateButtonText}>✨ Generate Outfit</Text>
+        <Text style={styles.generateButtonText}>Generate Outfit</Text>
       </TouchableOpacity>
 
       {generatedOutfit && (
@@ -228,8 +262,46 @@ export default function SmartGeneratorScreen() {
             {renderItemCard(generatedOutfit.bottom, 'Bottom')}
             {renderItemCard(generatedOutfit.shoes, 'Shoes')}
           </View>
+
+          <TouchableOpacity style={styles.saveOutfitButton} onPress={handleSaveGeneratedOutfit}>
+            <Text style={styles.saveOutfitText}>Save This Outfit</Text>
+          </TouchableOpacity>
         </View>
       )}
+
+      <Modal visible={isSaveModalVisible} animationType="fade" transparent={true}>
+        <View style={styles.saveModalOverlay}>
+          <View style={styles.saveModalContent}>
+            <Text style={styles.saveModalTitle}>Save Generated Outfit</Text>
+            <Text style={styles.saveModalSubtitle}>Give your new outfit a name:</Text>
+            
+            <TextInput
+              style={styles.textInput}
+              placeholder="e.g. Casual Look"
+              value={outfitNameInput}
+              onChangeText={setOutfitNameInput}
+              autoFocus={true}
+            />
+
+            <View style={styles.saveModalButtons}>
+              <TouchableOpacity style={styles.cancelBtn} onPress={() => setSaveModalVisible(false)}>
+                <Text style={styles.cancelBtnText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.confirmBtn} 
+                onPress={() => {
+                  setSaveModalVisible(false);
+                  const finalName = outfitNameInput.trim() || `Generated Outfit #${Date.now().toString().slice(-4)}`;
+                  executeSave(finalName);
+                }}
+              >
+                <Text style={styles.confirmBtnText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -405,4 +477,84 @@ const styles = StyleSheet.create({
     fontStyle: 'italic', 
     fontWeight: '600' 
 },
+saveOutfitButton: {
+    backgroundColor: '#38A169',
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 12,
+    marginTop: 24,
+    alignItems: 'center',
+    width: '100%',
+  },
+  saveOutfitText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  saveModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  saveModalContent: {
+    width: '85%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 24,
+    elevation: 5,
+  },
+  saveModalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#1A202C',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  saveModalSubtitle: {
+    fontSize: 14,
+    color: '#718096',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: '#CBD5E0',
+    borderRadius: 10,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: '#F7F9FC',
+    marginBottom: 24,
+  },
+  saveModalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  cancelBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    marginRight: 8,
+    borderRadius: 10,
+    backgroundColor: '#EDF2F7',
+    alignItems: 'center',
+  },
+  cancelBtnText: {
+    color: '#4A5568',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  confirmBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    marginLeft: 8,
+    borderRadius: 10,
+    backgroundColor: '#38A169',
+    alignItems: 'center',
+  },
+  confirmBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  tfhft:{}
 });

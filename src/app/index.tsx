@@ -35,7 +35,7 @@ export default function HomeScreen() {
 
         <View style={styles.group}>
           <TouchableOpacity style={styles.solidButtonPurple} onPress={() => router.push('/generator')}>
-            <Text style={styles.solidButtonText}>✨ Outfit Generator</Text>
+            <Text style={styles.solidButtonText}>Outfit Generator</Text>
           </TouchableOpacity>
         </View>
 
