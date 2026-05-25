@@ -1,4 +1,4 @@
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import db from '../database/db';
@@ -16,6 +16,7 @@ type OutfitRecord = {
 };
 
 export default function SavedOutfitsScreen() {
+  const router = useRouter();
   const [outfits, setOutfits] = useState<OutfitRecord[]>([]);
 
   useFocusEffect(
@@ -90,10 +91,18 @@ export default function SavedOutfitsScreen() {
     return (
       <View style={styles.card}>
         <View style={styles.cardHeader}>
-          <Text style={styles.outfitName}>{item.name}</Text>
-          <TouchableOpacity onPress={() => deleteOutfit(item.id, item.name)} style={styles.deleteButton}>
-            <Text style={styles.deleteText}>Delete</Text>
-          </TouchableOpacity>
+          <Text style={styles.outfitName} numberOfLines={1}>{item.name}</Text>
+          <View style={styles.actionsContainer}>
+            <TouchableOpacity 
+              onPress={() => router.push({ pathname: '/builder', params: { editId: item.id } })} 
+              style={styles.editButton}
+            >
+              <Text style={styles.editText}>Edit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => deleteOutfit(item.id, item.name)} style={styles.deleteButton}>
+              <Text style={styles.deleteText}>Delete</Text>
+            </TouchableOpacity>
+          </View>
         </View>
         
         <View style={styles.imagesGrid}>
@@ -197,6 +206,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#2D3748',
     flex: 1,
+    marginRight: 8,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  editButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#EBF8FF',
+    borderRadius: 8,
+  },
+  editText: {
+    color: '#2B6CB0',
+    fontWeight: '600',
+    fontSize: 14,
   },
   deleteButton: {
     paddingHorizontal: 12,

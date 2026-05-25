@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
-import { Alert, FlatList, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import {
+    Alert, FlatList, Image, Modal, ScrollView, StyleSheet, Text,
+    TextInput, TouchableOpacity, View
+} from 'react-native';
 import db from '../database/db';
 
 type ClothesItem = {
@@ -11,7 +15,9 @@ type ClothesItem = {
 type SlotType = 'top' | 'bottom' | 'dress' | 'shoes' | 'outerwear' | 'hat' | 'purse';
 
 export default function OutfitBuilderScreen() {
-
+    const router = useRouter();
+    const { editId } = useLocalSearchParams();
+    
   const [outfit, setOutfit] = useState<Record<SlotType, ClothesItem | null>>({
     top: null,
     bottom: null,
@@ -27,6 +33,49 @@ export default function OutfitBuilderScreen() {
   const [availableClothes, setAvailableClothes] = useState<ClothesItem[]>([]);
   const [isSaveModalVisible, setSaveModalVisible] = useState(false);
   const [outfitNameInput, setOutfitNameInput] = useState('');
+  const [originalName, setOriginalName] = useState('');
+
+  useEffect(() => {
+    if (editId) {
+      loadOutfitForEdit(Number(editId));
+    }
+  }, [editId]);
+
+  const loadOutfitForEdit = (id: number) => {
+    try {
+      const query = `
+        SELECT o.*, 
+          t.image_uri as t_uri, b.image_uri as b_uri, d.image_uri as d_uri,
+          s.image_uri as s_uri, out.image_uri as out_uri, h.image_uri as h_uri, p.image_uri as p_uri
+        FROM outfits o
+        LEFT JOIN clothes t ON o.top_id = t.id
+        LEFT JOIN clothes b ON o.bottom_id = b.id
+        LEFT JOIN clothes d ON o.dress_id = d.id
+        LEFT JOIN clothes s ON o.shoes_id = s.id
+        LEFT JOIN clothes out ON o.outerwear_id = out.id
+        LEFT JOIN clothes h ON o.hat_id = h.id
+        LEFT JOIN clothes p ON o.purse_id = p.id
+        WHERE o.id = ?
+      `;
+      const data = db.getFirstSync<any>(query, [id]);
+
+      if (data) {
+        setOriginalName(data.name);
+        setOutfitNameInput(data.name);
+        setOutfit({
+          top: data.top_id ? { id: data.top_id, image_uri: data.t_uri, category_id: 0 } : null,
+          bottom: data.bottom_id ? { id: data.bottom_id, image_uri: data.b_uri, category_id: 0 } : null,
+          dress: data.dress_id ? { id: data.dress_id, image_uri: data.d_uri, category_id: 0 } : null,
+          shoes: data.shoes_id ? { id: data.shoes_id, image_uri: data.s_uri, category_id: 0 } : null,
+          outerwear: data.outerwear_id ? { id: data.outerwear_id, image_uri: data.out_uri, category_id: 0 } : null,
+          hat: data.hat_id ? { id: data.hat_id, image_uri: data.h_uri, category_id: 0 } : null,
+          purse: data.purse_id ? { id: data.purse_id, image_uri: data.p_uri, category_id: 0 } : null,
+        });
+      }
+    } catch (error) {
+      console.error('Error loading outfit for edit:', error);
+    }
+  };
 
   const openPicker = (slot: SlotType) => {
     setActiveSlot(slot);
@@ -112,12 +161,37 @@ export default function OutfitBuilderScreen() {
       return;
     }
 
-    setOutfitNameInput('');
+    if (editId) {
+      if (outfitNameInput.trim() === '') {
+        setOutfitNameInput(originalName);
+      }
+    } else {
+      setOutfitNameInput('');
+    }
+
     setSaveModalVisible(true);
   };
 
   const executeSave = (outfitName: string) => {
     try {
+        if (editId) {
+        db.runSync(
+          `UPDATE outfits SET name=?, dress_id=?, top_id=?, bottom_id=?, shoes_id=?, outerwear_id=?, hat_id=?, purse_id=? WHERE id=?`,
+          [
+            outfitName,
+            outfit.dress?.id || null,
+            outfit.top?.id || null,
+            outfit.bottom?.id || null,
+            outfit.shoes?.id || null,
+            outfit.outerwear?.id || null,
+            outfit.hat?.id || null,
+            outfit.purse?.id || null,
+            Number(editId)
+          ]
+        );
+        Alert.alert('Updated!', 'Outfit changes have been saved.');
+        router.back();
+      } else {
       db.runSync(
         `INSERT INTO outfits (name, dress_id, top_id, bottom_id, shoes_id, outerwear_id, hat_id, purse_id) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -144,7 +218,7 @@ export default function OutfitBuilderScreen() {
         hat: null, 
         purse: null,
       });
-    } catch (error) {
+    }} catch (error) {
       console.error('Error saving outfit:', error);
       Alert.alert('Error', 'Could not save the outfit.');
     }
@@ -158,7 +232,7 @@ export default function OutfitBuilderScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Create An Outfit</Text>
+          <Text style={styles.title}>{editId ? 'Edit Outfit' : 'Create An Outfit'}</Text>
         </View>
 
         <View style={styles.grid}>
@@ -172,7 +246,7 @@ export default function OutfitBuilderScreen() {
         </View>
 
         <TouchableOpacity style={styles.saveOutfitButton} onPress={handleSaveOutfit}>
-          <Text style={styles.saveOutfitText}>Save Outfit</Text>
+          <Text style={styles.saveOutfitText}>{editId ? 'Save Changes' : 'Save Outfit'}</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -227,7 +301,7 @@ export default function OutfitBuilderScreen() {
                 style={styles.confirmBtn} 
                 onPress={() => {
                   setSaveModalVisible(false);
-                  const finalName = outfitNameInput.trim() || `My Outfit #${Date.now().toString().slice(-4)}`;
+                  const finalName = outfitNameInput.trim() || originalName || `Outfit #${Date.now().toString().slice(-4)}`;
                   executeSave(finalName);
                 }}
               >
