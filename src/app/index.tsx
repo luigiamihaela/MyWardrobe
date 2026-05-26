@@ -43,6 +43,10 @@ export default function HomeScreen() {
           <TouchableOpacity style={styles.solidButtonPink} onPress={() => router.push('/calendar')}>
             <Text style={styles.solidButtonText}>Outfit Diary 🌸</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity style={styles.outlineButtonPink} onPress={() => router.push('/insights')}>
+            <Text style={styles.outlineButtonTextPink}>Wardrobe Insights 📊</Text>
+          </TouchableOpacity>
         </View>
 
       </View>
@@ -137,7 +141,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
-    marginBottom: 12,
     elevation: 2,
     shadowColor: '#000',
     shadowOpacity: 0.1,
@@ -155,5 +158,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 3 },
+  },
+  outlineButtonPink: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: '#D53F8C',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  outlineButtonTextPink: {
+    color: '#D53F8C',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
