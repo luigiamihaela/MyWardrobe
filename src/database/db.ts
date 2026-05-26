@@ -34,6 +34,13 @@ export const initDatabase = () => {
         FOREIGN KEY (hat_id) REFERENCES clothes (id) ON DELETE SET NULL,
         FOREIGN KEY (purse_id) REFERENCES clothes (id) ON DELETE SET NULL
       );
+
+      CREATE TABLE IF NOT EXISTS outfit_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT NOT NULL,
+        outfit_id INTEGER NOT NULL,
+        FOREIGN KEY (outfit_id) REFERENCES outfits (id) ON DELETE CASCADE
+      );
     `);
     
     console.log('The database and tables have been successfully initialized!');

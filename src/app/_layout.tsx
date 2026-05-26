@@ -16,6 +16,7 @@ export default function RootLayout() {
       <Stack.Screen name="builder" options={{ title: '' }} />
       <Stack.Screen name="outfits" options={{ title: '' }} />
       <Stack.Screen name="generator" options={{ title: '' }} />
+      <Stack.Screen name="calendar" options={{ title: '' }} />
     </Stack>
   );
 }
