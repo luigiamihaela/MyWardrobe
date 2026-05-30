@@ -1,55 +1,70 @@
-import { useRouter } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useState } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import ThemedButton from '../components/ThemedButton';
+import ThemedCard from '../components/ThemedCard';
+import { useTheme } from '../context/ThemeContext';
+import db from '../database/db';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { theme, isPink, toggleTheme } = useTheme();
+  
+  const [stats, setStats] = useState({ clothes: 0, outfits: 0 });
+
+  useFocusEffect(
+    useCallback(() => {
+      try {
+        const clothesCount = db.getFirstSync<{ total: number }>('SELECT COUNT(id) as total FROM clothes');
+        const outfitsCount = db.getFirstSync<{ total: number }>('SELECT COUNT(id) as total FROM outfits');
+        setStats({
+          clothes: clothesCount?.total || 0,
+          outfits: outfitsCount?.total || 0,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }, [])
+  );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>My Wardrobe</Text>
-        <Text style={styles.subtitle}>What would you like to wear today?</Text>
+        <View>
+          <Text style={[styles.welcomeText, { color: theme.subtext }]}>Hello, Stylist! 👋</Text>
+          <Text style={styles.title}>My Wardrobe</Text>
+        </View>
+        <TouchableOpacity style={[styles.themeToggle, { backgroundColor: theme.iconBtn }]} onPress={toggleTheme}>
+          <Text style={styles.themeToggleText}>{isPink ? '🌸 Pink' : '🔷 Blue'}</Text>
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.buttonsContainer}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <View style={styles.statsRow}>
+          <ThemedCard style={styles.statCard}>
+            <Text style={[styles.statNumber, { color: theme.primary }]}>{stats.clothes}</Text>
+            <Text style={styles.statLabel}>Items</Text>
+          </ThemedCard>
+          
+          <ThemedCard style={styles.statCard}>
+            <Text style={[styles.statNumber, { color: theme.primary }]}>{stats.outfits}</Text>
+            <Text style={styles.statLabel}>Outfits</Text>
+          </ThemedCard>
+        </View>
+
+        <Text style={styles.sectionTitle}>Wardrobe Inventory</Text>
+        <ThemedButton title="Add Item" onPress={() => router.push('/add')} />
+        <ThemedButton title="👕 View All Items" onPress={() => router.push('/collection')} variant="outline" />
+
+        <Text style={styles.sectionTitle}>Outfits</Text>
+        <ThemedButton title="👗 Outfit Builder" onPress={() => router.push('/builder')} />
+        <ThemedButton title="👚 Saved Outfits" onPress={() => router.push('/outfits')} variant="outline" />
+        <ThemedButton title="✨ Smart Generator" onPress={() => router.push('/generator')} />  
         
-        <View style={styles.group}>
-          <TouchableOpacity style={styles.solidButtonBlue} onPress={() => router.push('/add')}>
-            <Text style={styles.solidButtonText}>+ Add a New Item</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.outlineButtonBlue} onPress={() => router.push('/collection')}>
-            <Text style={styles.outlineButtonTextBlue}>My Collection</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.group}>
-          <TouchableOpacity style={styles.solidButtonGreen} onPress={() => router.push('/builder')}>
-            <Text style={styles.solidButtonText}>+ Create An Outfit</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.outlineButtonGreen} onPress={() => router.push('/outfits')}>
-            <Text style={styles.outlineButtonTextGreen}>My Outfits</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.group}>
-          <TouchableOpacity style={styles.solidButtonPurple} onPress={() => router.push('/generator')}>
-            <Text style={styles.solidButtonText}>Outfit Generator</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.group}>
-          <TouchableOpacity style={styles.solidButtonPink} onPress={() => router.push('/calendar')}>
-            <Text style={styles.solidButtonText}>Outfit Diary 🌸</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.outlineButtonPink} onPress={() => router.push('/insights')}>
-            <Text style={styles.outlineButtonTextPink}>Wardrobe Insights 📊</Text>
-          </TouchableOpacity>
-        </View>
-
-      </View>
+        <Text style={styles.sectionTitle}>Tracking & Analysis</Text>
+        <ThemedButton title="📅 Outfit Diary" onPress={() => router.push('/calendar')} />
+        <ThemedButton title="📊 Wardrobe Insights" onPress={() => router.push('/insights')} variant="outline" />
+      </ScrollView>
     </View>
   );
 }
@@ -57,120 +72,64 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F9FC',
-    padding: 24,
-    justifyContent: 'center',
   },
   header: {
-    marginBottom: 48,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 40,
+    paddingBottom: 20,
+    backgroundColor: '#FFFFFF',
+    elevation: 2,
+  },
+  welcomeText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#1A202C',
-    marginBottom: 8,
   },
-  subtitle: {
-    fontSize: 18,
+  themeToggle: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  themeToggleText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#1A202C',
+  },
+  scrollContent: {
+    padding: 24,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+    gap: 16,
+  },
+  statCard: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: 32,
+    fontWeight: 'bold',
+  },
+  statLabel: {
+    fontSize: 14,
     color: '#718096',
+    fontWeight: '500',
+    marginTop: 4,
   },
-  buttonsContainer: {
-    width: '100%',
-  },
-  group: {
-    marginBottom: 12,
-  },
-  solidButtonBlue: {
-    backgroundColor: '#2B6CB0',
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  outlineButtonBlue: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: '#2B6CB0',
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  outlineButtonTextBlue: {
-    color: '#2B6CB0',
-    fontSize: 16,
+  sectionTitle: {
+    fontSize: 18,
     fontWeight: 'bold',
-  },
-  solidButtonGreen: {
-    backgroundColor: '#38A169',
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
+    color: '#1A202C',
+    marginTop: 24, // Spațiu puțin mai mare între secțiuni pentru a respira UI-ul
     marginBottom: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  outlineButtonGreen: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: '#38A169',
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  outlineButtonTextGreen: {
-    color: '#38A169',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  solidButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  solidButtonPurple: {
-    backgroundColor: '#805AD5',
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  solidButtonPink: {
-    backgroundColor: '#D53F8C',
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 12,
-    elevation: 2,
-    shadowColor: '#D53F8C',
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
-  },
-  outlineButtonPink: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 2,
-    borderColor: '#D53F8C',
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  outlineButtonTextPink: {
-    color: '#D53F8C',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 });
