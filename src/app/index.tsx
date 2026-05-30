@@ -34,9 +34,15 @@ export default function HomeScreen() {
           <Text style={[styles.welcomeText, { color: theme.subtext }]}>Hello, Stylist! 👋</Text>
           <Text style={styles.title}>My Wardrobe</Text>
         </View>
-        <TouchableOpacity style={[styles.themeToggle, { backgroundColor: theme.iconBtn }]} onPress={toggleTheme}>
-          <Text style={styles.themeToggleText}>{isPink ? '🌸 Pink' : '🔷 Blue'}</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <TouchableOpacity style={[styles.themeToggle, { backgroundColor: theme.iconBtn }]} onPress={toggleTheme}>
+            <Text style={styles.themeToggleText}>{isPink ? '🌸' : '🔷'}</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={[styles.themeToggle, { backgroundColor: theme.iconBtn }]} onPress={() => router.push('/settings')}>
+            <Text style={styles.themeToggleText}>⚙️</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
