@@ -41,7 +41,16 @@ export const initDatabase = () => {
         outfit_id INTEGER NOT NULL,
         FOREIGN KEY (outfit_id) REFERENCES outfits (id) ON DELETE CASCADE
       );
+
+      CREATE TABLE IF NOT EXISTS user_profile (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT DEFAULT 'Stylist'
+      );
     `);
+    const rowCount = db.getFirstSync<{ total: number }>('SELECT COUNT(id) as total FROM user_profile');
+      if (rowCount && rowCount.total === 0) {
+      db.runSync("INSERT INTO user_profile (username) VALUES ('Stylist')");
+    }
     
     console.log('The database and tables have been successfully initialized!');
   } catch (error) {

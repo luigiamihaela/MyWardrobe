@@ -11,16 +11,23 @@ export default function HomeScreen() {
   const { theme, isPink, toggleTheme } = useTheme();
   
   const [stats, setStats] = useState({ clothes: 0, outfits: 0 });
+  const [username, setUsername] = useState('Stylist');
 
   useFocusEffect(
     useCallback(() => {
       try {
         const clothesCount = db.getFirstSync<{ total: number }>('SELECT COUNT(id) as total FROM clothes');
         const outfitsCount = db.getFirstSync<{ total: number }>('SELECT COUNT(id) as total FROM outfits');
+        const userRow = db.getFirstSync<{ username: string }>('SELECT username FROM user_profile LIMIT 1');
+
         setStats({
           clothes: clothesCount?.total || 0,
           outfits: outfitsCount?.total || 0,
         });
+
+        if (userRow) {
+        setUsername(userRow.username);
+      }
       } catch (error) {
         console.error(error);
       }
@@ -31,7 +38,7 @@ export default function HomeScreen() {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
         <View>
-          <Text style={[styles.welcomeText, { color: theme.subtext }]}>Hello, Stylist! 👋</Text>
+          <Text style={[styles.welcomeText, { color: theme.subtext }]}>Hello, {username}! 👋</Text>
           <Text style={styles.title}>My Wardrobe</Text>
         </View>
         <View style={{ flexDirection: 'row', gap: 8 }}>

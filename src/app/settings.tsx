@@ -2,18 +2,37 @@ import * as DocumentPicker from 'expo-document-picker';
 import { copyAsync, documentDirectory, getInfoAsync, makeDirectoryAsync } from 'expo-file-system/legacy';
 import { useRouter } from 'expo-router';
 import * as Sharing from 'expo-sharing';
-import React from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
-
+import React, { useEffect, useState } from 'react';
+import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import ThemedButton from '../components/ThemedButton';
 import { useTheme } from '../context/ThemeContext';
-
+import db from '../database/db';
 const DB_NAME = 'mywardrobe_v1.db'; 
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { theme } = useTheme();
+  const [username, setUsername] = useState('Stylist');
 
+  useEffect(() => {
+    try {
+      const userRow = db.getFirstSync<{ username: string }>('SELECT username FROM user_profile LIMIT 1');
+      if (userRow) {
+        setUsername(userRow.username);
+      }
+    } catch (error) {
+      console.error('Error loading username:', error);
+    }
+  }, []);
+
+  const handleNameChange = (text: string) => {
+    setUsername(text);
+    try {
+      db.runSync('UPDATE user_profile SET username = ? WHERE id = 1', [text || 'Stylist']);
+    } catch (error) {
+      console.error('Error saving username:', error);
+    }
+  };
   const handleExport = async () => {
     try {
       const dbFilePath = `${documentDirectory}SQLite/${DB_NAME}`;
@@ -68,7 +87,7 @@ export default function SettingsScreen() {
 
       Alert.alert(
         'Success! 🎉', 
-        'Database restored successfully! Please restart the app for the changes to take effect.',
+        'Database restored successfully!',
         [{ text: 'OK', onPress: () => router.replace('/') }]
       );
 
@@ -86,6 +105,17 @@ export default function SettingsScreen() {
       </View>
 
       <View style={styles.content}>
+        <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border, marginBottom: 20 }]}>
+          <Text style={styles.cardTitle}>My Profile 👤</Text>
+          <Text style={styles.label}>Your Name:</Text>
+          <TextInput
+            style={[styles.input, { borderColor: theme.border, color: theme.text }]}
+            value={username}
+            onChangeText={handleNameChange}
+            placeholder="Enter your name..."
+            maxLength={20}
+          />
+        </View>
         <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
           <Text style={styles.cardTitle}>Data Portability</Text>
           <Text style={styles.cardDescription}>
@@ -171,4 +201,19 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingHorizontal: 16,
   },
+  label: { 
+    fontSize: 14, 
+    color: '#4A5568', 
+    fontWeight: '600', 
+    marginBottom: 8 
+},
+  input: { 
+    backgroundColor: '#F7FAFC', 
+    borderWidth: 1, 
+    borderRadius: 10, 
+    paddingHorizontal: 16, 
+    paddingVertical: 12, 
+    fontSize: 16, 
+    fontWeight: '500' 
+},
 });
