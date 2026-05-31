@@ -1,6 +1,8 @@
+import { useTheme } from '@/context/ThemeContext';
+import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { Alert, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Image, Modal, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import db from '../../database/db';
 
 type OutfitRecord = {
@@ -18,6 +20,8 @@ type OutfitRecord = {
 export default function SavedOutfitsScreen() {
   const router = useRouter();
   const [outfits, setOutfits] = useState<OutfitRecord[]>([]);
+  const { theme } = useTheme();
+  const [isMenuVisible, setMenuVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -89,41 +93,47 @@ export default function SavedOutfitsScreen() {
     ].filter(Boolean) as string[];
 
     return (
-      <View style={styles.card}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.outfitName} numberOfLines={1}>{item.name}</Text>
-          <View style={styles.actionsContainer}>
-            <TouchableOpacity 
-              onPress={() => router.push({ pathname: '/builder', params: { editId: item.id } })} 
-              style={styles.editButton}
-            >
-              <Text style={styles.editText}>Edit</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => deleteOutfit(item.id, item.name)} style={styles.deleteButton}>
-              <Text style={styles.deleteText}>Delete</Text>
-            </TouchableOpacity>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.outfitName} numberOfLines={1}>{item.name}</Text>
+            <View style={styles.actionsContainer}>
+              <TouchableOpacity 
+                onPress={() => router.push({ pathname: '/builder', params: { editId: item.id } })} 
+                style={styles.editButton}
+              >
+                <Text style={styles.editText}>Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => deleteOutfit(item.id, item.name)} style={styles.deleteButton}>
+                <Text style={styles.deleteText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          
+          <View style={styles.imagesGrid}>
+            {images.map((uri, index) => (
+              <Image key={index} source={{ uri }} style={styles.clothingThumbnail} />
+            ))}
           </View>
         </View>
-        
-        <View style={styles.imagesGrid}>
-          {images.map((uri, index) => (
-            <Image key={index} source={{ uri }} style={styles.clothingThumbnail} />
-          ))}
-        </View>
-      </View>
-    );
-  };
+      );
+    };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>My Outfits</Text>
+        <Text style={[styles.title, { color: theme.text }]}>My Outfits</Text>
+        <TouchableOpacity 
+          style={[styles.addButton, { backgroundColor: theme.primary }]} 
+          onPress={() => setMenuVisible(true)}
+        >
+          <Ionicons name="add" size={26} color="#FFFFFF" />
+        </TouchableOpacity>
       </View>
 
       {outfits.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>No outfits saved yet.</Text>
-          <Text style={styles.emptySubtext}>Go to Create An Outfit to create one!</Text>
+          <Text style={styles.emptySubtext}>Create one!</Text>
         </View>
       ) : (
         <FlatList
@@ -134,6 +144,59 @@ export default function SavedOutfitsScreen() {
           contentContainerStyle={styles.listPadding}
         />
       )}
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={isMenuVisible}
+        onRequestClose={() => setMenuVisible(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1} 
+          onPress={() => setMenuVisible(false)}
+        >
+          <TouchableWithoutFeedback>
+            <View style={[styles.customAlertBox, { backgroundColor: theme.card }]}>
+              
+              <Text style={[styles.alertTitle, { color: theme.text }]}>New Outfit</Text>
+              <Text style={styles.alertSubtitle}>How would you like to create your next outfit?</Text>
+
+              <TouchableOpacity 
+                style={[styles.actionButton, { backgroundColor: theme.background }]} 
+                onPress={() => {
+                  setMenuVisible(false);
+                  router.push('/builder');
+                }}
+              >
+                <Text style={styles.actionIcon}>👗</Text>
+                <Text style={[styles.actionText, { color: theme.text }]}>Manual Builder</Text>
+                <Ionicons name="chevron-forward" size={20} color="#A0AEC0" />
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={[styles.actionButton, { backgroundColor: theme.background }]} 
+                onPress={() => {
+                  setMenuVisible(false);
+                  router.push('/generator');
+                }}
+              >
+                <Text style={styles.actionIcon}>✨</Text>
+                <Text style={[styles.actionText, { color: theme.text }]}>Smart Generator</Text>
+                <Ionicons name="chevron-forward" size={20} color="#A0AEC0" />
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.cancelButton} 
+                onPress={() => setMenuVisible(false)}
+              >
+                <Text style={styles.cancelText}>Cancel</Text>
+              </TouchableOpacity>
+
+            </View>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }
@@ -145,8 +208,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 24,
   },
-  header: {
-    marginBottom: 24,
+  header: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    paddingHorizontal: 24, 
+    paddingTop: 30,
+    paddingBottom: 20, 
+  },
+  title: { 
+    fontSize: 32, 
+    fontWeight: 'bold',
+  },
+  addButton: { 
+    width: 48, 
+    height: 48, 
+    borderRadius: 24, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
   backButton: {
     paddingVertical: 8,
@@ -156,12 +239,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#2B6CB0',
     fontWeight: '600',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1A202C',
-    textAlign: 'center',
   },
   emptyContainer: {
     flex: 1,
@@ -244,5 +321,59 @@ const styles = StyleSheet.create({
     height: 90,
     borderRadius: 8,
     backgroundColor: '#EDF2F7',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Fundalul închis la culoare
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  customAlertBox: {
+    width: '85%',
+    borderRadius: 24, // Aici controlezi marginile rotunjite!
+    padding: 24,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 15,
+  },
+  alertTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  alertSubtitle: {
+    fontSize: 14,
+    color: '#718096',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 16, // Rotunjim și butoanele
+    marginBottom: 12,
+  },
+  actionIcon: {
+    fontSize: 24,
+    marginRight: 16,
+  },
+  actionText: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  cancelButton: {
+    marginTop: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  cancelText: {
+    fontSize: 16,
+    color: '#E53E3E', // Roșu pentru Cancel
+    fontWeight: 'bold',
   },
 });

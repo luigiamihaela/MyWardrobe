@@ -33,7 +33,7 @@ export default function TabLayout() {
       />
       <Tabs.Screen 
         name="outfits" 
-        options={{ title: 'Closet', tabBarIcon: ({ color }: { color: string }) => <Ionicons name="shirt" size={24} color={color} /> }} 
+        options={{ title: 'Outfits', tabBarIcon: ({ color }: { color: string }) => <Ionicons name="shirt" size={24} color={color} /> }} 
       />
       <Tabs.Screen 
         name="calendar" 
