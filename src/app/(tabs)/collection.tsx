@@ -1,6 +1,8 @@
-import { useFocusEffect } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Alert, FlatList, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '../../context/ThemeContext';
 import db from '../../database/db';
 
 type ClothesItem = {
@@ -37,6 +39,8 @@ export default function WardrobeScreen() {
   const [editCategory, setEditCategory] = useState<number>(1);
   const [editColor, setEditColor] = useState<string>('Black');
   const [editSeason, setEditSeason] = useState<string>('Summer');
+  const router = useRouter();
+  const { theme } = useTheme();
 
   useFocusEffect(
     useCallback(() => {
@@ -123,9 +127,17 @@ export default function WardrobeScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
 
-      <Text style={styles.title}>My Collection</Text>
+      <View style={styles.header}>
+        <Text style={[styles.title, { color: theme.text }]}> My Collection</Text>
+        <TouchableOpacity 
+          style={[styles.addButton, { backgroundColor: theme.primary }]} 
+          onPress={() => router.push('/add')}
+        >
+          <Ionicons name="add" size={26} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
       
       {clothes.length === 0 ? (
         <View style={styles.emptyContainer}>
@@ -220,6 +232,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 24,
   },
+  header: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    paddingHorizontal: 24, 
+    paddingTop: 30,
+    paddingBottom: 20, 
+  },
+  title: { 
+    fontSize: 32, 
+    fontWeight: 'bold' ,
+  },
+  addButton: { 
+    width: 48, 
+    height: 48, 
+    borderRadius: 24, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
   backButton: {
     marginBottom: 16,
     paddingVertical: 8,
@@ -228,13 +263,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#2B6CB0',
     fontWeight: '600',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 24,
-    color: '#1A202C',
-    textAlign: 'center',
   },
   emptyContainer: {
     flex: 1,
