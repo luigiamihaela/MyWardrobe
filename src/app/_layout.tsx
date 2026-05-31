@@ -15,9 +15,10 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown : false }} />
         
-        <Stack.Screen name="settings" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="generator" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="wardrobe" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="settings"  options={{title : '' }} />
+        <Stack.Screen name="generator" options={{title : '' }} />
+        <Stack.Screen name="add" options={{title : '' }} />
+        <Stack.Screen name="builder" options={{title : '' }} />
       </Stack>
     </ThemeProvider>
   );
