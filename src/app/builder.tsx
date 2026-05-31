@@ -1,10 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert, FlatList, Image, Modal, ScrollView, StyleSheet, Text,
-    TextInput, TouchableOpacity, View
+  Alert, FlatList, Image, Modal, ScrollView, StyleSheet, Text,
+  TextInput, TouchableOpacity, View
 } from 'react-native';
-import db from '../../database/db';
+import db from '../database/db';
 
 type ClothesItem = {
   id: number;
