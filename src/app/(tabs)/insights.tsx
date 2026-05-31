@@ -1,7 +1,7 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
-import db from '../database/db';
+import db from '../../database/db';
 
 type TopOutfitData = {
   id: number;

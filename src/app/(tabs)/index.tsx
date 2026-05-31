@@ -1,10 +1,10 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import ThemedButton from '../components/ThemedButton';
-import ThemedCard from '../components/ThemedCard';
-import { useTheme } from '../context/ThemeContext';
-import db from '../database/db';
+import ThemedButton from '../../components/ThemedButton';
+import ThemedCard from '../../components/ThemedCard';
+import { useTheme } from '../../context/ThemeContext';
+import db from '../../database/db';
 
 export default function HomeScreen() {
   const router = useRouter();

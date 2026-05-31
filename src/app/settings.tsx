@@ -88,7 +88,7 @@ export default function SettingsScreen() {
       Alert.alert(
         'Success! 🎉', 
         'Database restored successfully!',
-        [{ text: 'OK', onPress: () => router.replace('/') }]
+        [{ text: 'OK', onPress: () => router.replace('/(tabs)/index') }]
       );
 
     } catch (error) {
