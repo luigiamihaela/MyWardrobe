@@ -4,6 +4,7 @@ import {
   Alert, FlatList, Image, Modal, ScrollView, StyleSheet, Text,
   TextInput, TouchableOpacity, View
 } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 import db from '../database/db';
 
 type ClothesItem = {
@@ -15,8 +16,9 @@ type ClothesItem = {
 type SlotType = 'top' | 'bottom' | 'dress' | 'shoes' | 'outerwear' | 'hat' | 'purse';
 
 export default function OutfitBuilderScreen() {
-    const router = useRouter();
-    const { editId } = useLocalSearchParams();
+  const router = useRouter();
+  const { editId } = useLocalSearchParams();
+  const { theme } = useTheme();
     
   const [outfit, setOutfit] = useState<Record<SlotType, ClothesItem | null>>({
     top: null,
@@ -106,40 +108,37 @@ export default function OutfitBuilderScreen() {
   const selectItem = (item: ClothesItem) => {
     if (activeSlot) {
       setOutfit(prev => {
-        const newOutfit = { ...prev, [activeSlot]: item };
-        
-        if (activeSlot === 'dress') {
-          newOutfit.top = null;
-          newOutfit.bottom = null;
+        if (prev[activeSlot]?.id === item.id) {
+          return { ...prev, [activeSlot]: null };
         }
-        if (activeSlot === 'top' || activeSlot === 'bottom') {
-          newOutfit.dress = null;
-        }
-        
-        return newOutfit;
+        return { ...prev, [activeSlot]: item };
       });
+    }
+    setModalVisible(false);
+  };
+
+  const clearActiveSlot = () => {
+    if (activeSlot) {
+      setOutfit(prev => ({ ...prev, [activeSlot]: null }));
     }
     setModalVisible(false);
   };
 
   const renderSlot = (title: string, slotType: SlotType) => {
     const item = outfit[slotType];
-    
-    const isDisabled = (outfit.dress && (slotType === 'top' || slotType === 'bottom')) ||
-                       ((outfit.top || outfit.bottom) && slotType === 'dress');
 
     return (
       <TouchableOpacity 
-        style={[styles.slot, isDisabled && styles.slotDisabled]} 
-        onPress={() => !isDisabled && openPicker(slotType)}
+        style={[styles.slot, { backgroundColor: theme.card, shadowColor: theme.primary }]} 
+        onPress={() => openPicker(slotType)}
         activeOpacity={0.7}
       >
-        <Text style={styles.slotTitle}>{title}</Text>
-        <View style={styles.slotImageContainer}>
+        <Text style={[styles.slotTitle, { color: theme.text }]}>{title}</Text>
+        <View style={[styles.slotImageContainer, { backgroundColor: theme.border }]}>
           {item ? (
             <Image source={{ uri: item.image_uri }} style={styles.image} />
           ) : (
-            <Text style={styles.plusSign}>+</Text>
+            <Text style={[styles.plusSign, { color: theme.subtext }]}>+</Text>
           )}
         </View>
       </TouchableOpacity>
@@ -227,12 +226,12 @@ export default function OutfitBuilderScreen() {
   return (
     <>
       <ScrollView 
-        style={styles.container} 
+        style={[styles.container, { backgroundColor: theme.background }]} 
         contentContainerStyle={styles.contentContainer} 
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>{editId ? 'Edit Outfit' : 'Create An Outfit'}</Text>
+          <Text style={[styles.title, { color: theme.text }]}>{editId ? 'Edit Outfit' : 'Create An Outfit'}</Text>
         </View>
 
         <View style={styles.grid}>
@@ -245,33 +244,50 @@ export default function OutfitBuilderScreen() {
           {renderSlot('Purse/Bag', 'purse')}
         </View>
 
-        <TouchableOpacity style={styles.saveOutfitButton} onPress={handleSaveOutfit}>
+        <TouchableOpacity style={[styles.saveOutfitButton, { backgroundColor: theme.primary }]} onPress={handleSaveOutfit}>
           <Text style={styles.saveOutfitText}>{editId ? 'Save Changes' : 'Save Outfit'}</Text>
         </TouchableOpacity>
       </ScrollView>
 
       <Modal visible={isModalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Choose Item</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Text style={styles.closeText}>Close</Text>
-              </TouchableOpacity>
+              <Text style={[styles.modalTitle, { color: theme.text }]}>Choose Item</Text>
+              <View style={{ flexDirection: 'row', gap: 16 }}>
+                {activeSlot && outfit[activeSlot] && (
+                  <TouchableOpacity onPress={clearActiveSlot}>
+                    <Text style={[styles.clearText, { color: theme.subtext }]}>Clear</Text>
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity onPress={() => setModalVisible(false)}>
+                  <Text style={styles.closeText}>Close</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             {availableClothes.length === 0 ? (
-              <Text style={styles.emptyText}>You don't have any clothes in this category yet.</Text>
+              <Text style={[styles.emptyText, { color: theme.subtext }]}>You don't have any clothes in this category yet.</Text>
             ) : (
               <FlatList
                 data={availableClothes}
                 keyExtractor={(item: ClothesItem) => item.id.toString()}
                 numColumns={3}
-                renderItem={({ item }: { item: ClothesItem }) => (
-                  <TouchableOpacity style={styles.modalItem} onPress={() => selectItem(item)}>
-                    <Image source={{ uri: item.image_uri }} style={styles.modalImage} />
-                  </TouchableOpacity>
-                )}
+                renderItem={({ item }: { item: ClothesItem }) => {
+                  const isSelected = activeSlot ? outfit[activeSlot]?.id === item.id : false;
+                  return (
+                    <TouchableOpacity 
+                      style={[
+                        styles.modalItem, 
+                        { backgroundColor: theme.border },
+                        isSelected && { borderColor: theme.primary }
+                      ]} 
+                      onPress={() => selectItem(item)}
+                    >
+                      <Image source={{ uri: item.image_uri }} style={styles.modalImage} />
+                    </TouchableOpacity>
+                  );
+                }}
               />
             )}
           </View>
@@ -280,12 +296,13 @@ export default function OutfitBuilderScreen() {
 
       <Modal visible={isSaveModalVisible} animationType="fade" transparent={true}>
         <View style={styles.saveModalOverlay}>
-          <View style={styles.saveModalContent}>
-            <Text style={styles.saveModalTitle}>Save Outfit</Text>
-            <Text style={styles.saveModalSubtitle}>Give your outfit a name:</Text>
+          <View style={[styles.saveModalContent, { backgroundColor: theme.card }]}>
+            <Text style={[styles.saveModalTitle, { color: theme.text }]}>Save Outfit</Text>
+            <Text style={[styles.saveModalSubtitle, { color: theme.subtext }]}>Give your outfit a name:</Text>
             
             <TextInput
-              style={styles.textInput}
+              style={[styles.textInput, { backgroundColor: theme.background, borderColor: theme.border, color: theme.text }]}
+              placeholderTextColor={theme.subtext}
               placeholder="e.g. Summer Casual"
               value={outfitNameInput}
               onChangeText={setOutfitNameInput}
@@ -293,12 +310,12 @@ export default function OutfitBuilderScreen() {
             />
 
             <View style={styles.saveModalButtons}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={() => setSaveModalVisible(false)}>
-                <Text style={styles.cancelBtnText}>Cancel</Text>
+              <TouchableOpacity style={[styles.cancelBtn, { backgroundColor: theme.iconBtn }]} onPress={() => setSaveModalVisible(false)}>
+                <Text style={[styles.cancelBtnText, { color: theme.text }]}>Cancel</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={styles.confirmBtn} 
+                style={[styles.confirmBtn, { backgroundColor: theme.primary }]} 
                 onPress={() => {
                   setSaveModalVisible(false);
                   const finalName = outfitNameInput.trim() || originalName || `Outfit #${Date.now().toString().slice(-4)}`;
@@ -318,7 +335,6 @@ export default function OutfitBuilderScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F9FC',
   },
   contentContainer: {
     padding: 16,
@@ -328,19 +344,9 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 24,
   },
-  backButton: {
-    paddingVertical: 8,
-    marginBottom: 8,
-  },
-  backText: {
-    fontSize: 16,
-    color: '#2B6CB0',
-    fontWeight: '600',
-  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1A202C',
     textAlign: 'center',
   },
   grid: {
@@ -351,28 +357,21 @@ const styles = StyleSheet.create({
   slot: {
     width: '48%',
     marginBottom: 16,
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 12,
     elevation: 2,
-    shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 4,
-  },
-  slotDisabled: {
-    opacity: 0.4,
   },
   slotTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#4A5568',
     marginBottom: 8,
     textAlign: 'center',
   },
   slotImageContainer: {
     width: '100%',
     aspectRatio: 3 / 4,
-    backgroundColor: '#EDF2F7',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
@@ -384,11 +383,9 @@ const styles = StyleSheet.create({
   },
   plusSign: {
     fontSize: 32,
-    color: '#A0AEC0',
     fontWeight: '300',
   },
   saveOutfitButton: {
-    backgroundColor: '#38A169',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -406,7 +403,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 16,
@@ -422,6 +418,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
+  clearText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
   closeText: {
     fontSize: 16,
     color: '#E53E3E',
@@ -429,7 +429,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     textAlign: 'center',
-    color: '#718096',
     marginTop: 32,
   },
   modalItem: {
@@ -438,7 +437,8 @@ const styles = StyleSheet.create({
     margin: 4,
     borderRadius: 8,
     overflow: 'hidden',
-    backgroundColor: '#EDF2F7',
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
   modalImage: {
     width: '100%',
@@ -452,7 +452,6 @@ const styles = StyleSheet.create({
   },
   saveModalContent: {
     width: '85%',
-    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 24,
     elevation: 5,
@@ -460,23 +459,19 @@ const styles = StyleSheet.create({
   saveModalTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#1A202C',
     marginBottom: 8,
     textAlign: 'center',
   },
   saveModalSubtitle: {
     fontSize: 14,
-    color: '#718096',
     marginBottom: 20,
     textAlign: 'center',
   },
   textInput: {
     borderWidth: 1,
-    borderColor: '#CBD5E0',
     borderRadius: 10,
     padding: 12,
     fontSize: 16,
-    backgroundColor: '#F7F9FC',
     marginBottom: 24,
   },
   saveModalButtons: {
@@ -488,11 +483,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginRight: 8,
     borderRadius: 10,
-    backgroundColor: '#EDF2F7',
     alignItems: 'center',
   },
   cancelBtnText: {
-    color: '#4A5568',
     fontWeight: '600',
     fontSize: 16,
   },
@@ -501,7 +494,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginLeft: 8,
     borderRadius: 10,
-    backgroundColor: '#38A169',
     alignItems: 'center',
   },
   confirmBtnText: {
