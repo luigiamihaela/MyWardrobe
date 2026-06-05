@@ -51,15 +51,43 @@ loadLoggedOutfit(selectedDate);
 );
 
 const loadLoggedOutfit = (date: Date) => {
-const dateStr = formatDateForDB(date);
-try {
-const query = "SELECT o.*,  t.image_uri AS t_uri, b.image_uri AS b_uri, d.image_uri AS d_uri FROM outfit_logs l JOIN outfits o ON l.outfit_id = o.id LEFT JOIN clothes t ON o.top_id = t.id LEFT JOIN clothes b ON o.bottom_id = b.id LEFT JOIN clothes d ON o.dress_id = d.id WHERE l.date = ?";
-const result = db.getFirstSync(query, [dateStr]);
-setLoggedOutfit(result || null);
-} catch (error) {
-console.error('Error fetching log:', error);
-}
-};
+    if (!date) return;
+    try {
+      if (!db) return;
+      const dateStr = formatDateForDB(date);
+      const query = `
+        SELECT o.*, 
+          t.image_uri AS t_uri, b.image_uri AS b_uri, d.image_uri AS d_uri,
+          s.image_uri AS s_uri, out.image_uri AS out_uri, h.image_uri AS h_uri, p.image_uri AS p_uri
+        FROM outfit_logs l
+        JOIN outfits o ON l.outfit_id = o.id
+        LEFT JOIN clothes t ON o.top_id = t.id
+        LEFT JOIN clothes b ON o.bottom_id = b.id
+        LEFT JOIN clothes d ON o.dress_id = d.id
+        LEFT JOIN clothes s ON o.shoes_id = s.id
+        LEFT JOIN clothes out ON o.outerwear_id = out.id
+        LEFT JOIN clothes h ON o.hat_id = h.id
+        LEFT JOIN clothes p ON o.purse_id = p.id
+        WHERE l.date = ?
+      `;
+      const result = db.getFirstSync<any>(query, [dateStr]);
+      
+      if (result) {
+        // Colectăm toate pozele care există pentru această ținută
+        const allImages = [
+          result.d_uri, result.t_uri, result.b_uri, 
+          result.s_uri, result.out_uri, result.h_uri, result.p_uri
+        ].filter(img => img != null);
+        
+        setLoggedOutfit({ ...result, images: allImages });
+      } else {
+        setLoggedOutfit(null);
+      }
+    } catch (error) {
+      console.log('Safe fallback triggered. Error fetching log:', error);
+      setLoggedOutfit(null);
+    }
+  };
 
 const openOutfitSelector = () => {
 try {
@@ -207,10 +235,14 @@ return (
         <Text style={[styles.loggedName, { color: theme.text }]} numberOfLines={2}>{loggedOutfit.name}</Text>
         
         <View style={styles.previewGrid}>
-          {loggedOutfit.d_uri && <Image source={{ uri: loggedOutfit.d_uri }} style={[styles.previewImage, { backgroundColor: theme.border }]} />}
-          {loggedOutfit.t_uri && <Image source={{ uri: loggedOutfit.t_uri }} style={[styles.previewImage, { backgroundColor: theme.border }]} />}
-          {loggedOutfit.b_uri && <Image source={{ uri: loggedOutfit.b_uri }} style={[styles.previewImage, { backgroundColor: theme.border }]} />}
-        </View>
+              {loggedOutfit.images?.map((imgUri: string, index: number) => (
+                <Image 
+                  key={index} 
+                  source={{ uri: imgUri }} 
+                  style={[styles.previewImage, { backgroundColor: theme.border }]} 
+                />
+              ))}
+            </View>
 
         <View style={styles.actionsRow}>
           <TouchableOpacity style={[styles.changeBtn, { backgroundColor: theme.iconBtn }]} onPress={openOutfitSelector}>
@@ -441,16 +473,17 @@ textAlign: 'center',
 marginBottom: 20,
 },
 previewGrid: {
-flexDirection: 'row',
-justifyContent: 'center',
-gap: 12,
-marginBottom: 24,
-},
-previewImage: {
-width: 80,
-height: 110,
-borderRadius: 12,
-},
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 24,
+  },
+  previewImage: {
+    width: 65,
+    height: 85,
+    borderRadius: 12,
+  },
 actionsRow: {
 flexDirection: 'row',
 justifyContent: 'space-between',
