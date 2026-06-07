@@ -139,13 +139,7 @@ export default function HomeScreen() {
           .split("T")[0];
 
         const localToday = localISOTime;
-        console.log("Checking outfit for local date:", localToday);
 
-        const allLogs = db.getAllSync("SELECT * FROM outfit_logs");
-        console.log(
-          "DEBUG - Toate log-urile din baza de date:",
-          JSON.stringify(allLogs, null, 2),
-        );
         const ootdRow = db.getFirstSync<any>(
           `SELECT 
              o.name, 
@@ -196,8 +190,10 @@ export default function HomeScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>Hello, {username}!</Text>
+        <View style={{ flex: 1, marginRight: 16 }}>
+          <Text style={styles.title} numberOfLines={2}>
+            Hello, {username}!
+          </Text>
         </View>
         <View style={{ flexDirection: "row", gap: 8 }}>
           <TouchableOpacity
@@ -490,7 +486,6 @@ const styles = StyleSheet.create({
   quoteContainer: {
     alignItems: "center",
     paddingHorizontal: 20,
-    paddingVertical: 10,
   },
   quoteText: {
     fontSize: 15,
