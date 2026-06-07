@@ -1,9 +1,19 @@
-import { useTheme } from '@/context/ThemeContext';
-import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useState } from 'react';
-import { Alert, FlatList, Image, Modal, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import db from '../../database/db';
+import { useTheme } from "@/context/ThemeContext";
+import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
+import {
+  Alert,
+  FlatList,
+  Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import db from "../../database/db";
 
 type OutfitRecord = {
   id: number;
@@ -26,7 +36,7 @@ export default function SavedOutfitsScreen() {
   useFocusEffect(
     useCallback(() => {
       loadOutfits();
-    }, [])
+    }, []),
   );
 
   const loadOutfits = () => {
@@ -55,30 +65,26 @@ export default function SavedOutfitsScreen() {
       const result = db.getAllSync<OutfitRecord>(query);
       setOutfits(result);
     } catch (error) {
-      console.error('Error loading outfits:', error);
+      console.error("Error loading outfits:", error);
     }
   };
 
   const deleteOutfit = (id: number, name: string) => {
-    Alert.alert(
-      'Delete Outfit',
-      `Are you sure you want to delete "${name}"?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Delete', 
-          style: 'destructive',
-          onPress: () => {
-            try {
-              db.runSync('DELETE FROM outfits WHERE id = ?', [id]);
-              loadOutfits();
-            } catch (error) {
-              console.error('Error deleting outfit:', error);
-            }
+    Alert.alert("Delete Outfit", `Are you sure you want to delete "${name}"?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => {
+          try {
+            db.runSync("DELETE FROM outfits WHERE id = ?", [id]);
+            loadOutfits();
+          } catch (error) {
+            console.error("Error deleting outfit:", error);
           }
-        }
-      ]
-    );
+        },
+      },
+    ]);
   };
 
   const renderOutfitCard = ({ item }: { item: OutfitRecord }) => {
@@ -89,41 +95,55 @@ export default function SavedOutfitsScreen() {
       item.top_image,
       item.bottom_image,
       item.purse_image,
-      item.shoes_image
+      item.shoes_image,
     ].filter(Boolean) as string[];
 
     return (
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.outfitName} numberOfLines={1}>{item.name}</Text>
-            <View style={styles.actionsContainer}>
-              <TouchableOpacity 
-                onPress={() => router.push({ pathname: '/builder', params: { editId: item.id } })} 
-                style={styles.editButton}
-              >
-                <Text style={styles.editText}>Edit</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => deleteOutfit(item.id, item.name)} style={styles.deleteButton}>
-                <Text style={styles.deleteText}>Delete</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          
-          <View style={styles.imagesGrid}>
-            {images.map((uri, index) => (
-              <Image key={index} source={{ uri }} style={styles.clothingThumbnail} />
-            ))}
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <Text style={styles.outfitName} numberOfLines={1}>
+            {item.name}
+          </Text>
+          <View style={styles.actionsContainer}>
+            <TouchableOpacity
+              onPress={() =>
+                router.push({
+                  pathname: "/builder",
+                  params: { editId: item.id },
+                })
+              }
+              style={styles.editButton}
+            >
+              <Text style={styles.editText}>Edit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => deleteOutfit(item.id, item.name)}
+              style={styles.deleteButton}
+            >
+              <Text style={styles.deleteText}>Delete</Text>
+            </TouchableOpacity>
           </View>
         </View>
-      );
-    };
+
+        <View style={styles.imagesGrid}>
+          {images.map((uri, index) => (
+            <Image
+              key={index}
+              source={{ uri }}
+              style={styles.clothingThumbnail}
+            />
+          ))}
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
         <Text style={[styles.title, { color: theme.text }]}>My Outfits</Text>
-        <TouchableOpacity 
-          style={[styles.addButton, { backgroundColor: theme.primary }]} 
+        <TouchableOpacity
+          style={[styles.addButton, { backgroundColor: theme.primary }]}
           onPress={() => setMenuVisible(true)}
         >
           <Ionicons name="add" size={26} color="#FFFFFF" />
@@ -151,48 +171,62 @@ export default function SavedOutfitsScreen() {
         visible={isMenuVisible}
         onRequestClose={() => setMenuVisible(false)}
       >
-        <TouchableOpacity 
-          style={styles.modalOverlay} 
-          activeOpacity={1} 
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
           onPress={() => setMenuVisible(false)}
         >
           <TouchableWithoutFeedback>
-            <View style={[styles.customAlertBox, { backgroundColor: theme.card }]}>
-              
-              <Text style={[styles.alertTitle, { color: theme.text }]}>New Outfit</Text>
-              <Text style={styles.alertSubtitle}>How would you like to create your next outfit?</Text>
+            <View
+              style={[styles.customAlertBox, { backgroundColor: theme.card }]}
+            >
+              <Text style={[styles.alertTitle, { color: theme.text }]}>
+                New Outfit
+              </Text>
+              <Text style={styles.alertSubtitle}>
+                How would you like to create your next outfit?
+              </Text>
 
-              <TouchableOpacity 
-                style={[styles.actionButton, { backgroundColor: theme.background }]} 
+              <TouchableOpacity
+                style={[
+                  styles.actionButton,
+                  { backgroundColor: theme.background },
+                ]}
                 onPress={() => {
                   setMenuVisible(false);
-                  router.push('/builder');
+                  router.push("/builder");
                 }}
               >
                 <Text style={styles.actionIcon}>👗</Text>
-                <Text style={[styles.actionText, { color: theme.text }]}>Manual Builder</Text>
+                <Text style={[styles.actionText, { color: theme.text }]}>
+                  Manual Builder
+                </Text>
                 <Ionicons name="chevron-forward" size={20} color="#A0AEC0" />
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={[styles.actionButton, { backgroundColor: theme.background }]} 
+              <TouchableOpacity
+                style={[
+                  styles.actionButton,
+                  { backgroundColor: theme.background },
+                ]}
                 onPress={() => {
                   setMenuVisible(false);
-                  router.push('/generator');
+                  router.push("/generator");
                 }}
               >
                 <Text style={styles.actionIcon}>✨</Text>
-                <Text style={[styles.actionText, { color: theme.text }]}>Smart Generator</Text>
+                <Text style={[styles.actionText, { color: theme.text }]}>
+                  Smart Generator
+                </Text>
                 <Ionicons name="chevron-forward" size={20} color="#A0AEC0" />
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={styles.cancelButton} 
+              <TouchableOpacity
+                style={styles.cancelButton}
                 onPress={() => setMenuVisible(false)}
               >
                 <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
-
             </View>
           </TouchableWithoutFeedback>
         </TouchableOpacity>
@@ -204,29 +238,29 @@ export default function SavedOutfitsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F9FC',
+    backgroundColor: "#F7F9FC",
     paddingHorizontal: 16,
     paddingTop: 24,
   },
-  header: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    paddingHorizontal: 24, 
-    marginVertical: 20, 
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    marginVertical: 20,
   },
-  title: { 
-    fontSize: 32, 
-    fontWeight: 'bold',
+  title: {
+    fontSize: 32,
+    fontWeight: "bold",
   },
-  addButton: { 
-    width: 48, 
-    height: 48, 
-    borderRadius: 24, 
-    alignItems: 'center', 
-    justifyContent: 'center',
+  addButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
     elevation: 4,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 8,
   },
@@ -236,124 +270,124 @@ const styles = StyleSheet.create({
   },
   backText: {
     fontSize: 16,
-    color: '#2B6CB0',
-    fontWeight: '600',
+    color: "#2B6CB0",
+    fontWeight: "600",
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   emptyText: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#4A5568',
+    fontWeight: "600",
+    color: "#4A5568",
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 16,
-    color: '#A0AEC0',
+    color: "#A0AEC0",
   },
   listPadding: {
     paddingBottom: 40,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     padding: 16,
     marginBottom: 20,
     elevation: 3,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
   },
   cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#EDF2F7',
+    borderBottomColor: "#EDF2F7",
     paddingBottom: 12,
   },
   outfitName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2D3748',
+    fontWeight: "bold",
+    color: "#2D3748",
     flex: 1,
     marginRight: 8,
   },
   actionsContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
   },
   editButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: '#EBF8FF',
+    backgroundColor: "#EBF8FF",
     borderRadius: 8,
   },
   editText: {
-    color: '#2B6CB0',
-    fontWeight: '600',
+    color: "#2B6CB0",
+    fontWeight: "600",
     fontSize: 14,
   },
   deleteButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: '#FFF5F5',
+    backgroundColor: "#FFF5F5",
     borderRadius: 8,
   },
   deleteText: {
-    color: '#E53E3E',
-    fontWeight: '600',
+    color: "#E53E3E",
+    fontWeight: "600",
     fontSize: 14,
   },
   imagesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
   },
   clothingThumbnail: {
     width: 70,
     height: 90,
     borderRadius: 8,
-    backgroundColor: '#EDF2F7',
+    backgroundColor: "#EDF2F7",
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Fundalul închis la culoare
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   customAlertBox: {
-    width: '85%',
-    borderRadius: 24, // Aici controlezi marginile rotunjite!
+    width: "85%",
+    borderRadius: 24,
     padding: 24,
     elevation: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.2,
     shadowRadius: 15,
   },
   alertTitle: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
-    textAlign: 'center',
+    textAlign: "center",
   },
   alertSubtitle: {
     fontSize: 14,
-    color: '#718096',
-    textAlign: 'center',
+    color: "#718096",
+    textAlign: "center",
     marginBottom: 24,
     lineHeight: 20,
   },
   actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 16,
-    borderRadius: 16, // Rotunjim și butoanele
+    borderRadius: 16,
     marginBottom: 12,
   },
   actionIcon: {
@@ -363,16 +397,16 @@ const styles = StyleSheet.create({
   actionText: {
     flex: 1,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   cancelButton: {
     marginTop: 8,
     paddingVertical: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   cancelText: {
     fontSize: 16,
-    color: '#E53E3E', // Roșu pentru Cancel
-    fontWeight: 'bold',
+    color: "#E53E3E",
+    fontWeight: "bold",
   },
 });
