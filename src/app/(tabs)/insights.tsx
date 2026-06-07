@@ -1,4 +1,4 @@
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTheme } from "../../context/ThemeContext";
@@ -23,7 +23,7 @@ type TopItemData = {
 export default function InsightsScreen() {
   const { theme } = useTheme();
   const [totalLogs, setTotalLogs] = useState<number>(0);
-  const [topOutfit, setTopOutfit] = useState<TopOutfitData | null>(null);
+  const [topOutfits, setTopOutfits] = useState<TopOutfitData[]>([]);
   const [topItems, setTopItems] = useState<TopItemData[]>([]);
 
   useFocusEffect(
@@ -39,7 +39,7 @@ export default function InsightsScreen() {
       );
       setTotalLogs(logsCountResult?.total || 0);
 
-      const topOutfitQuery = `
+      const topOutfitsQuery = `
         SELECT o.id, o.name, COUNT(l.id) as wear_count,
                d.image_uri AS d_uri, t.image_uri AS t_uri, b.image_uri AS b_uri
         FROM outfit_logs l
@@ -48,11 +48,11 @@ export default function InsightsScreen() {
         LEFT JOIN clothes t ON o.top_id = t.id
         LEFT JOIN clothes b ON o.bottom_id = b.id
         GROUP BY o.id
-        ORDER BY wear_count DESC
-        LIMIT 1
+        ORDER BY wear_count DESC, o.id DESC
+        LIMIT 3
       `;
-      const outfitResult = db.getFirstSync<TopOutfitData>(topOutfitQuery);
-      setTopOutfit(outfitResult || null);
+      const outfitsResult = db.getAllSync<TopOutfitData>(topOutfitsQuery);
+      setTopOutfits(outfitsResult);
 
       const topItemsQuery = `
         SELECT c.id, c.image_uri, c.category_id, COUNT(l.id) as wear_count
@@ -130,48 +130,49 @@ export default function InsightsScreen() {
         ) : (
           <>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              🏆 Most Worn Outfit
+              🏆 Most Worn Outfits
             </Text>
-            {topOutfit && (
+            {topOutfits.map((outfit, index) => (
               <View
+                key={outfit.id}
                 style={[styles.topOutfitCard, { backgroundColor: theme.card }]}
               >
                 <View
                   style={[styles.badge, { backgroundColor: theme.iconBtn }]}
                 >
                   <Text style={[styles.badgeText, { color: theme.primary }]}>
-                    Worn {topOutfit.wear_count} times
+                    #{index + 1} • Worn {outfit.wear_count} times
                   </Text>
                 </View>
                 <Text
                   style={[styles.topOutfitName, { color: theme.text }]}
                   numberOfLines={1}
                 >
-                  {topOutfit.name}
+                  {outfit.name}
                 </Text>
 
                 <View style={styles.previewGrid}>
-                  {topOutfit.d_uri && (
+                  {outfit.d_uri && (
                     <Image
-                      source={{ uri: topOutfit.d_uri }}
+                      source={{ uri: outfit.d_uri }}
                       style={[
                         styles.previewImage,
                         { backgroundColor: theme.border },
                       ]}
                     />
                   )}
-                  {topOutfit.t_uri && (
+                  {outfit.t_uri && (
                     <Image
-                      source={{ uri: topOutfit.t_uri }}
+                      source={{ uri: outfit.t_uri }}
                       style={[
                         styles.previewImage,
                         { backgroundColor: theme.border },
                       ]}
                     />
                   )}
-                  {topOutfit.b_uri && (
+                  {outfit.b_uri && (
                     <Image
-                      source={{ uri: topOutfit.b_uri }}
+                      source={{ uri: outfit.b_uri }}
                       style={[
                         styles.previewImage,
                         { backgroundColor: theme.border },
@@ -180,9 +181,14 @@ export default function InsightsScreen() {
                   )}
                 </View>
               </View>
-            )}
+            ))}
 
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            <Text
+              style={[
+                styles.sectionTitle,
+                { color: theme.text, marginTop: 16 },
+              ]}
+            >
               🔥 Top 5 Favorite Pieces
             </Text>
             <View style={[styles.itemsCard, { backgroundColor: theme.card }]}>
