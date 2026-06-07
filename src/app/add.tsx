@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import db from "../database/db";
+import { useTheme } from "../context/ThemeContext";
 
 const CATEGORIES = [
   { id: 1, label: "Tshirt" },
@@ -42,7 +43,9 @@ const COLORS = [
   "Beige/Cream",
   "Multicolor",
 ];
+
 export default function AddItemScreen() {
+  const { theme } = useTheme();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [season, setSeason] = useState<string | null>(null);
@@ -114,21 +117,21 @@ export default function AddItemScreen() {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.background }]}
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={true}
     >
-      <Text style={styles.title}>Add a New Item</Text>
+      <Text style={[styles.title, { color: theme.text }]}>Add a New Item</Text>
 
-      <View style={styles.imageContainer}>
+      <View style={[styles.imageContainer, { backgroundColor: theme.border }]}>
         {imageUri ? (
           <Image source={{ uri: imageUri }} style={styles.image} />
         ) : (
-          <Text style={styles.placeholderText}>No image selected</Text>
+          <Text style={[styles.placeholderText, { color: theme.subtext }]}>No image selected</Text>
         )}
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={pickImage}>
+      <TouchableOpacity style={[styles.button, { backgroundColor: theme.primary }]} onPress={pickImage}>
         <Text style={styles.buttonText}>
           {imageUri ? "Change Photo" : "Open Gallery"}
         </Text>
@@ -137,20 +140,22 @@ export default function AddItemScreen() {
       {imageUri && (
         <View style={styles.filtersContainer}>
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Category:</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Category:</Text>
             <View style={styles.chipsContainer}>
               {CATEGORIES.map((cat) => (
                 <TouchableOpacity
                   key={cat.id}
                   style={[
                     styles.chip,
-                    categoryId === cat.id && styles.chipActive,
+                    { backgroundColor: theme.card, borderColor: theme.border },
+                    categoryId === cat.id && { backgroundColor: theme.primary, borderColor: theme.primary },
                   ]}
                   onPress={() => setCategoryId(cat.id)}
                 >
                   <Text
                     style={[
                       styles.chipText,
+                      { color: theme.subtext },
                       categoryId === cat.id && styles.chipTextActive,
                     ]}
                   >
@@ -162,17 +167,22 @@ export default function AddItemScreen() {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Season:</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Season:</Text>
             <View style={styles.chipsContainer}>
               {SEASONS.map((s) => (
                 <TouchableOpacity
                   key={s}
-                  style={[styles.chip, season === s && styles.chipActive]}
+                  style={[
+                    styles.chip,
+                    { backgroundColor: theme.card, borderColor: theme.border },
+                    season === s && { backgroundColor: theme.primary, borderColor: theme.primary },
+                  ]}
                   onPress={() => setSeason(s)}
                 >
                   <Text
                     style={[
                       styles.chipText,
+                      { color: theme.subtext },
                       season === s && styles.chipTextActive,
                     ]}
                   >
@@ -184,17 +194,22 @@ export default function AddItemScreen() {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Color:</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Color:</Text>
             <View style={styles.chipsContainer}>
               {COLORS.map((c) => (
                 <TouchableOpacity
                   key={c}
-                  style={[styles.chip, color === c && styles.chipActive]}
+                  style={[
+                    styles.chip,
+                    { backgroundColor: theme.card, borderColor: theme.border },
+                    color === c && { backgroundColor: theme.primary, borderColor: theme.primary },
+                  ]}
                   onPress={() => setColor(c)}
                 >
                   <Text
                     style={[
                       styles.chipText,
+                      { color: theme.subtext },
                       color === c && styles.chipTextActive,
                     ]}
                   >
@@ -205,7 +220,7 @@ export default function AddItemScreen() {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.saveButton} onPress={saveItem}>
+          <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.primary }]} onPress={saveItem}>
             <Text style={styles.saveButtonText}>Save to Wardrobe</Text>
           </TouchableOpacity>
         </View>
@@ -217,7 +232,6 @@ export default function AddItemScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F7F9FC",
   },
   contentContainer: {
     padding: 24,
@@ -228,13 +242,11 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 24,
-    color: "#1A202C",
     textAlign: "center",
   },
   imageContainer: {
     width: 250,
     height: 330,
-    backgroundColor: "#E2E8F0",
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
@@ -246,11 +258,9 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   placeholderText: {
-    color: "#A0AEC0",
     fontSize: 16,
   },
   button: {
-    backgroundColor: "#2B6CB0",
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 12,
@@ -272,7 +282,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#4A5568",
     marginBottom: 12,
   },
   chipsContainer: {
@@ -283,17 +292,10 @@ const styles = StyleSheet.create({
   chip: {
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: "#EDF2F7",
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-  },
-  chipActive: {
-    backgroundColor: "#2B6CB0",
-    borderColor: "#2B6CB0",
   },
   chipText: {
-    color: "#4A5568",
     fontWeight: "500",
   },
   chipTextActive: {
@@ -301,7 +303,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   saveButton: {
-    backgroundColor: "#38A169",
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 12,
