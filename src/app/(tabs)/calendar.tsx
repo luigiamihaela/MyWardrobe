@@ -19,10 +19,16 @@ type OutfitItem = {
   name: string;
 };
 
-const formatDateForDB = (d: Date) => d.toISOString().split("T")[0];
+const formatDateForDB = (d: Date) => {
+  const tzOffset = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - tzOffset).toISOString().split("T")[0];
+};
+
 const getDayName = (d: Date) =>
   d.toLocaleDateString("en-US", { weekday: "short" });
+
 const getDayNumber = (d: Date) => d.getDate().toString();
+
 const getMonthName = (d: Date) =>
   d.toLocaleDateString("en-US", { month: "short" });
 

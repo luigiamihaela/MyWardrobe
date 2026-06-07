@@ -133,11 +133,19 @@ export default function HomeScreen() {
         if (userRow) setUsername(userRow.username);
 
         const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, "0");
-        const day = String(now.getDate()).padStart(2, "0");
-        const localToday = `${year}-${month}-${day}`;
+        const tzOffset = now.getTimezoneOffset() * 60000;
+        const localISOTime = new Date(now.getTime() - tzOffset)
+          .toISOString()
+          .split("T")[0];
 
+        const localToday = localISOTime;
+        console.log("Checking outfit for local date:", localToday);
+
+        const allLogs = db.getAllSync("SELECT * FROM outfit_logs");
+        console.log(
+          "DEBUG - Toate log-urile din baza de date:",
+          JSON.stringify(allLogs, null, 2),
+        );
         const ootdRow = db.getFirstSync<any>(
           `SELECT 
              o.name, 
@@ -157,8 +165,10 @@ export default function HomeScreen() {
            LEFT JOIN clothes c_outerwear ON o.outerwear_id = c_outerwear.id
            LEFT JOIN clothes c_hat ON o.hat_id = c_hat.id
            LEFT JOIN clothes c_purse ON o.purse_id = c_purse.id
-           WHERE c.date = ? LIMIT 1`,
-          [localToday],
+           WHERE c.date LIKE ? 
+           ORDER BY c.id DESC 
+           LIMIT 1`,
+          [`${localToday}%`],
         );
 
         if (ootdRow) {
