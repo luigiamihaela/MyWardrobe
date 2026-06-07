@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useTheme } from "../context/ThemeContext";
 import db from "../database/db";
 
 type ClothesItem = {
@@ -46,6 +47,7 @@ const COLORS = [
 const NEUTRAL_COLORS = ["Black", "White", "Gray", "Beige/Cream", "Brown"];
 
 export default function SmartGeneratorScreen() {
+  const { theme } = useTheme();
   const [selectedSeason, setSelectedSeason] = useState<string>("Summer");
   const [targetColor, setTargetColor] = useState<string>("Any Color");
   const [useColorTheory, setUseColorTheory] = useState<boolean>(true);
@@ -225,10 +227,22 @@ export default function SmartGeneratorScreen() {
   const renderItemCard = (item: ClothesItem | null, label: string) => {
     if (!item) return null;
     return (
-      <View style={styles.itemCard}>
-        <Text style={styles.itemLabel}>{label}</Text>
-        <Image source={{ uri: item.image_uri }} style={styles.itemImage} />
-        <Text style={styles.colorIndicator}>{item.color}</Text>
+      <View
+        style={[
+          styles.itemCard,
+          { backgroundColor: theme.card, borderColor: theme.border },
+        ]}
+      >
+        <Text style={[styles.itemLabel, { color: theme.subtext }]}>
+          {label}
+        </Text>
+        <Image
+          source={{ uri: item.image_uri }}
+          style={[styles.itemImage, { backgroundColor: theme.background }]}
+        />
+        <Text style={[styles.colorIndicator, { color: theme.text }]}>
+          {item.color}
+        </Text>
       </View>
     );
   };
@@ -270,29 +284,41 @@ export default function SmartGeneratorScreen() {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.background }]}
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.header}>
-        <Text style={styles.title}>Outfit Generator</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: theme.text }]}>
+          Smart Generator
+        </Text>
+        <Text style={[styles.subtitle, { color: theme.subtext }]}>
           Let the App create an outfit for you.
         </Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>1. Season:</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+          1. Season:
+        </Text>
         <View style={styles.chipsContainer}>
           {SEASONS.map((s) => (
             <TouchableOpacity
               key={s}
-              style={[styles.chip, selectedSeason === s && styles.chipActive]}
+              style={[
+                styles.chip,
+                { backgroundColor: theme.card, borderColor: theme.border },
+                selectedSeason === s && {
+                  backgroundColor: theme.primary,
+                  borderColor: theme.primary,
+                },
+              ]}
               onPress={() => setSelectedSeason(s)}
             >
               <Text
                 style={[
                   styles.chipText,
+                  { color: theme.text },
                   selectedSeason === s && styles.chipTextActive,
                 ]}
               >
@@ -304,7 +330,9 @@ export default function SmartGeneratorScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>2. Accent Color:</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+          2. Accent Color:
+        </Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -313,13 +341,18 @@ export default function SmartGeneratorScreen() {
           <TouchableOpacity
             style={[
               styles.chip,
-              targetColor === "Any Color" && styles.chipActiveColor,
+              { backgroundColor: theme.card, borderColor: theme.border },
+              targetColor === "Any Color" && {
+                backgroundColor: theme.primary,
+                borderColor: theme.primary,
+              },
             ]}
             onPress={() => setTargetColor("Any Color")}
           >
             <Text
               style={[
                 styles.chipText,
+                { color: theme.text },
                 targetColor === "Any Color" && styles.chipTextActive,
               ]}
             >
@@ -330,12 +363,20 @@ export default function SmartGeneratorScreen() {
           {COLORS.map((c) => (
             <TouchableOpacity
               key={c}
-              style={[styles.chip, targetColor === c && styles.chipActiveColor]}
+              style={[
+                styles.chip,
+                { backgroundColor: theme.card, borderColor: theme.border },
+                targetColor === c && {
+                  backgroundColor: theme.primary,
+                  borderColor: theme.primary,
+                },
+              ]}
               onPress={() => setTargetColor(c)}
             >
               <Text
                 style={[
                   styles.chipText,
+                  { color: theme.text },
                   targetColor === c && styles.chipTextActive,
                 ]}
               >
@@ -347,15 +388,25 @@ export default function SmartGeneratorScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>3. Matching Logic:</Text>
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>
+          3. Matching Logic:
+        </Text>
         <View style={styles.logicContainer}>
           <TouchableOpacity
-            style={[styles.logicBox, useColorTheory && styles.logicBoxActive]}
+            style={[
+              styles.logicBox,
+              { backgroundColor: theme.card, borderColor: theme.border },
+              useColorTheory && {
+                backgroundColor: theme.primary,
+                borderColor: theme.primary,
+              },
+            ]}
             onPress={() => setUseColorTheory(true)}
           >
             <Text
               style={[
                 styles.logicTitle,
+                { color: theme.text },
                 useColorTheory && styles.logicTextActive,
               ]}
             >
@@ -364,6 +415,7 @@ export default function SmartGeneratorScreen() {
             <Text
               style={[
                 styles.logicDesc,
+                { color: theme.subtext },
                 useColorTheory && styles.logicTextActive,
               ]}
             >
@@ -372,12 +424,20 @@ export default function SmartGeneratorScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.logicBox, !useColorTheory && styles.logicBoxActive]}
+            style={[
+              styles.logicBox,
+              { backgroundColor: theme.card, borderColor: theme.border },
+              !useColorTheory && {
+                backgroundColor: theme.primary,
+                borderColor: theme.primary,
+              },
+            ]}
             onPress={() => setUseColorTheory(false)}
           >
             <Text
               style={[
                 styles.logicTitle,
+                { color: theme.text },
                 !useColorTheory && styles.logicTextActive,
               ]}
             >
@@ -386,6 +446,7 @@ export default function SmartGeneratorScreen() {
             <Text
               style={[
                 styles.logicDesc,
+                { color: theme.subtext },
                 !useColorTheory && styles.logicTextActive,
               ]}
             >
@@ -395,13 +456,21 @@ export default function SmartGeneratorScreen() {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.generateButton} onPress={generateOutfit}>
+      <TouchableOpacity
+        style={[
+          styles.generateButton,
+          { backgroundColor: theme.primary, shadowColor: theme.primary },
+        ]}
+        onPress={generateOutfit}
+      >
         <Text style={styles.generateButtonText}>Generate Outfit</Text>
       </TouchableOpacity>
 
       {generatedOutfit && (
-        <View style={styles.resultContainer}>
-          <Text style={styles.resultTitle}>Your generated look:</Text>
+        <View style={[styles.resultContainer, { backgroundColor: theme.card }]}>
+          <Text style={[styles.resultTitle, { color: theme.text }]}>
+            Your generated look:
+          </Text>
           <View style={styles.resultGrid}>
             {renderItemCard(generatedOutfit.outerwear, "Outerwear")}
             {renderItemCard(generatedOutfit.dress, "Dress")}
@@ -411,7 +480,10 @@ export default function SmartGeneratorScreen() {
           </View>
 
           <TouchableOpacity
-            style={styles.saveOutfitButton}
+            style={[
+              styles.saveOutfitButton,
+              { backgroundColor: theme.primary },
+            ]}
             onPress={handleSaveGeneratedOutfit}
           >
             <Text style={styles.saveOutfitText}>Save This Outfit</Text>
@@ -425,14 +497,26 @@ export default function SmartGeneratorScreen() {
         transparent={true}
       >
         <View style={styles.saveModalOverlay}>
-          <View style={styles.saveModalContent}>
-            <Text style={styles.saveModalTitle}>Save Generated Outfit</Text>
-            <Text style={styles.saveModalSubtitle}>
+          <View
+            style={[styles.saveModalContent, { backgroundColor: theme.card }]}
+          >
+            <Text style={[styles.saveModalTitle, { color: theme.text }]}>
+              Save Generated Outfit
+            </Text>
+            <Text style={[styles.saveModalSubtitle, { color: theme.subtext }]}>
               Give your new outfit a name:
             </Text>
 
             <TextInput
-              style={styles.textInput}
+              style={[
+                styles.textInput,
+                {
+                  backgroundColor: theme.background,
+                  borderColor: theme.border,
+                  color: theme.text,
+                },
+              ]}
+              placeholderTextColor={theme.subtext}
               placeholder="e.g. Casual Look"
               value={outfitNameInput}
               onChangeText={setOutfitNameInput}
@@ -441,14 +525,16 @@ export default function SmartGeneratorScreen() {
 
             <View style={styles.saveModalButtons}>
               <TouchableOpacity
-                style={styles.cancelBtn}
+                style={[styles.cancelBtn, { backgroundColor: theme.iconBtn }]}
                 onPress={() => setSaveModalVisible(false)}
               >
-                <Text style={styles.cancelBtnText}>Cancel</Text>
+                <Text style={[styles.cancelBtnText, { color: theme.text }]}>
+                  Cancel
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.confirmBtn}
+                style={[styles.confirmBtn, { backgroundColor: theme.primary }]}
                 onPress={() => {
                   setSaveModalVisible(false);
                   const finalName =
@@ -470,7 +556,6 @@ export default function SmartGeneratorScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F7F9FC",
   },
   contentContainer: {
     padding: 24,
@@ -479,25 +564,15 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 32,
   },
-  backButton: {
-    paddingVertical: 8,
-    marginBottom: 8,
-  },
-  backText: {
-    fontSize: 16,
-    color: "#2B6CB0",
-    fontWeight: "600",
-  },
   title: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#1A202C",
     textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
-    color: "#718096",
     marginTop: 8,
+    textAlign: "center",
   },
   section: {
     marginBottom: 32,
@@ -505,7 +580,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#2D3748",
     marginBottom: 16,
   },
   chipsContainer: {
@@ -519,23 +593,12 @@ const styles = StyleSheet.create({
   chip: {
     paddingVertical: 10,
     paddingHorizontal: 16,
-    backgroundColor: "#EDF2F7",
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
     marginRight: 10,
     marginBottom: 10,
   },
-  chipActive: {
-    backgroundColor: "#2B6CB0",
-    borderColor: "#2B6CB0",
-  },
-  chipActiveColor: {
-    backgroundColor: "#E53E3E",
-    borderColor: "#E53E3E",
-  },
   chipText: {
-    color: "#4A5568",
     fontWeight: "600",
   },
   chipTextActive: {
@@ -550,36 +613,26 @@ const styles = StyleSheet.create({
   logicBox: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: "#E2E8F0",
     alignItems: "center",
-  },
-  logicBoxActive: {
-    backgroundColor: "#805AD5",
-    borderColor: "#805AD5",
   },
   logicTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#2D3748",
     marginBottom: 4,
   },
   logicDesc: {
     fontSize: 12,
-    color: "#718096",
     textAlign: "center",
   },
   logicTextActive: {
     color: "#FFFFFF",
   },
   generateButton: {
-    backgroundColor: "#805AD5",
     paddingVertical: 18,
     borderRadius: 16,
     alignItems: "center",
-    shadowColor: "#805AD5",
     shadowOpacity: 0.3,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
@@ -593,7 +646,6 @@ const styles = StyleSheet.create({
   resultContainer: {
     marginTop: 40,
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
     padding: 20,
     borderRadius: 20,
     elevation: 3,
@@ -601,7 +653,6 @@ const styles = StyleSheet.create({
   resultTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#2D3748",
     marginBottom: 20,
   },
   resultGrid: {
@@ -612,16 +663,15 @@ const styles = StyleSheet.create({
   },
   itemCard: {
     width: 130,
-    backgroundColor: "#F7F9FC",
     padding: 8,
     borderRadius: 16,
     alignItems: "center",
+    borderWidth: 1,
     elevation: 1,
   },
   itemLabel: {
     fontSize: 12,
     fontWeight: "bold",
-    color: "#A0AEC0",
     textTransform: "uppercase",
     marginBottom: 8,
   },
@@ -629,17 +679,14 @@ const styles = StyleSheet.create({
     width: 110,
     height: 140,
     borderRadius: 12,
-    backgroundColor: "#EDF2F7",
     marginBottom: 8,
   },
   colorIndicator: {
     fontSize: 11,
-    color: "#4A5568",
     fontStyle: "italic",
     fontWeight: "600",
   },
   saveOutfitButton: {
-    backgroundColor: "#38A169",
     paddingVertical: 14,
     paddingHorizontal: 28,
     borderRadius: 12,
@@ -660,7 +707,6 @@ const styles = StyleSheet.create({
   },
   saveModalContent: {
     width: "85%",
-    backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 24,
     elevation: 5,
@@ -668,23 +714,19 @@ const styles = StyleSheet.create({
   saveModalTitle: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#1A202C",
     marginBottom: 8,
     textAlign: "center",
   },
   saveModalSubtitle: {
     fontSize: 14,
-    color: "#718096",
     marginBottom: 20,
     textAlign: "center",
   },
   textInput: {
     borderWidth: 1,
-    borderColor: "#CBD5E0",
     borderRadius: 10,
     padding: 12,
     fontSize: 16,
-    backgroundColor: "#F7F9FC",
     marginBottom: 24,
   },
   saveModalButtons: {
@@ -696,11 +738,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginRight: 8,
     borderRadius: 10,
-    backgroundColor: "#EDF2F7",
     alignItems: "center",
   },
   cancelBtnText: {
-    color: "#4A5568",
     fontWeight: "600",
     fontSize: 16,
   },
@@ -709,7 +749,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginLeft: 8,
     borderRadius: 10,
-    backgroundColor: "#38A169",
     alignItems: "center",
   },
   confirmBtnText: {
@@ -717,5 +756,4 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 16,
   },
-  tfhft: {},
 });
