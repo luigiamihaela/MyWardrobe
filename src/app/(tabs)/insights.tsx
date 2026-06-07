@@ -1,8 +1,8 @@
-import { useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useTheme } from '../../context/ThemeContext';
-import db from '../../database/db';
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useTheme } from "../../context/ThemeContext";
+import db from "../../database/db";
 
 type TopOutfitData = {
   id: number;
@@ -21,9 +21,7 @@ type TopItemData = {
 };
 
 export default function InsightsScreen() {
-  const router = useRouter();
   const { theme } = useTheme();
-
   const [totalLogs, setTotalLogs] = useState<number>(0);
   const [topOutfit, setTopOutfit] = useState<TopOutfitData | null>(null);
   const [topItems, setTopItems] = useState<TopItemData[]>([]);
@@ -31,12 +29,14 @@ export default function InsightsScreen() {
   useFocusEffect(
     useCallback(() => {
       loadStatistics();
-    }, [])
+    }, []),
   );
 
   const loadStatistics = () => {
     try {
-      const logsCountResult = db.getFirstSync<{ total: number }>('SELECT COUNT(id) as total FROM outfit_logs');
+      const logsCountResult = db.getFirstSync<{ total: number }>(
+        "SELECT COUNT(id) as total FROM outfit_logs",
+      );
       setTotalLogs(logsCountResult?.total || 0);
 
       const topOutfitQuery = `
@@ -71,9 +71,8 @@ export default function InsightsScreen() {
       `;
       const itemsResult = db.getAllSync<TopItemData>(topItemsQuery);
       setTopItems(itemsResult);
-
     } catch (error) {
-      console.error('Error loading insights:', error);
+      console.error("Error loading insights:", error);
     }
   };
 
@@ -84,56 +83,151 @@ export default function InsightsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={[styles.header, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
-        <Text style={[styles.title, { color: theme.text }]}>Wardrobe Insights</Text>
-        <Text style={[styles.subtitle, { color: theme.subtext }]}>Your style, analyzed.</Text>
+      <View
+        style={[
+          styles.header,
+          { backgroundColor: theme.card, borderBottomColor: theme.border },
+        ]}
+      >
+        <Text style={[styles.title, { color: theme.text }]}>
+          Wardrobe Insights
+        </Text>
+        <Text style={[styles.subtitle, { color: theme.subtext }]}>
+          Your style, analyzed.
+        </Text>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        
-        <View style={[styles.statCard, { backgroundColor: theme.primary, shadowColor: theme.primary }]}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <View
+          style={[
+            styles.statCard,
+            { backgroundColor: theme.primary, shadowColor: theme.primary },
+          ]}
+        >
           <Text style={styles.statNumber}>{totalLogs}</Text>
-          <Text style={[styles.statLabel, { color: theme.background }]}>Total Outfits Logged</Text>
+          <Text style={[styles.statLabel, { color: theme.background }]}>
+            Total Outfits Logged
+          </Text>
         </View>
 
         {totalLogs === 0 ? (
-          <View style={[styles.emptyState, { backgroundColor: theme.card, borderColor: theme.border }]}>
-            <Text style={[styles.emptyText, { color: theme.text }]}>Not enough data yet.</Text>
-            <Text style={[styles.emptySubtext, { color: theme.subtext }]}>Log some outfits in your Diary to see your statistics!</Text>
+          <View
+            style={[
+              styles.emptyState,
+              { backgroundColor: theme.card, borderColor: theme.border },
+            ]}
+          >
+            <Text style={[styles.emptyText, { color: theme.text }]}>
+              Not enough data yet.
+            </Text>
+            <Text style={[styles.emptySubtext, { color: theme.subtext }]}>
+              Log some outfits in your Diary to see your statistics!
+            </Text>
           </View>
         ) : (
           <>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>🏆 Most Worn Outfit</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              🏆 Most Worn Outfit
+            </Text>
             {topOutfit && (
-              <View style={[styles.topOutfitCard, { backgroundColor: theme.card }]}>
-                <View style={[styles.badge, { backgroundColor: theme.iconBtn }]}>
-                  <Text style={[styles.badgeText, { color: theme.primary }]}>Worn {topOutfit.wear_count} times</Text>
+              <View
+                style={[styles.topOutfitCard, { backgroundColor: theme.card }]}
+              >
+                <View
+                  style={[styles.badge, { backgroundColor: theme.iconBtn }]}
+                >
+                  <Text style={[styles.badgeText, { color: theme.primary }]}>
+                    Worn {topOutfit.wear_count} times
+                  </Text>
                 </View>
-                <Text style={[styles.topOutfitName, { color: theme.text }]} numberOfLines={1}>{topOutfit.name}</Text>
-                
+                <Text
+                  style={[styles.topOutfitName, { color: theme.text }]}
+                  numberOfLines={1}
+                >
+                  {topOutfit.name}
+                </Text>
+
                 <View style={styles.previewGrid}>
-                  {topOutfit.d_uri && <Image source={{ uri: topOutfit.d_uri }} style={[styles.previewImage, { backgroundColor: theme.border }]} />}
-                  {topOutfit.t_uri && <Image source={{ uri: topOutfit.t_uri }} style={[styles.previewImage, { backgroundColor: theme.border }]} />}
-                  {topOutfit.b_uri && <Image source={{ uri: topOutfit.b_uri }} style={[styles.previewImage, { backgroundColor: theme.border }]} />}
+                  {topOutfit.d_uri && (
+                    <Image
+                      source={{ uri: topOutfit.d_uri }}
+                      style={[
+                        styles.previewImage,
+                        { backgroundColor: theme.border },
+                      ]}
+                    />
+                  )}
+                  {topOutfit.t_uri && (
+                    <Image
+                      source={{ uri: topOutfit.t_uri }}
+                      style={[
+                        styles.previewImage,
+                        { backgroundColor: theme.border },
+                      ]}
+                    />
+                  )}
+                  {topOutfit.b_uri && (
+                    <Image
+                      source={{ uri: topOutfit.b_uri }}
+                      style={[
+                        styles.previewImage,
+                        { backgroundColor: theme.border },
+                      ]}
+                    />
+                  )}
                 </View>
               </View>
             )}
 
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>🔥 Top 5 Favorite Pieces</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              🔥 Top 5 Favorite Pieces
+            </Text>
             <View style={[styles.itemsCard, { backgroundColor: theme.card }]}>
               {topItems.map((item, index) => {
                 const percentage = getPercentage(item.wear_count);
                 return (
-                  <View key={item.id} style={[styles.itemRow, { borderBottomColor: theme.border }]}>
-                    <Text style={[styles.rankText, { color: theme.subtext }]}>#{index + 1}</Text>
-                    <Image source={{ uri: item.image_uri }} style={[styles.itemThumbnail, { backgroundColor: theme.border }]} />
-                    
+                  <View
+                    key={item.id}
+                    style={[
+                      styles.itemRow,
+                      { borderBottomColor: theme.border },
+                    ]}
+                  >
+                    <Text style={[styles.rankText, { color: theme.subtext }]}>
+                      #{index + 1}
+                    </Text>
+                    <Image
+                      source={{ uri: item.image_uri }}
+                      style={[
+                        styles.itemThumbnail,
+                        { backgroundColor: theme.border },
+                      ]}
+                    />
+
                     <View style={styles.barContainer}>
-                      <Text style={[styles.itemStatsText, { color: theme.text }]}>
+                      <Text
+                        style={[styles.itemStatsText, { color: theme.text }]}
+                      >
                         Worn {item.wear_count} times ({percentage}%)
                       </Text>
-                      <View style={[styles.barBackground, { backgroundColor: theme.border }]}>
-                        <View style={[styles.barFill, { width: `${percentage}%`, backgroundColor: theme.primary }]} />
+                      <View
+                        style={[
+                          styles.barBackground,
+                          { backgroundColor: theme.border },
+                        ]}
+                      >
+                        <View
+                          style={[
+                            styles.barFill,
+                            {
+                              width: `${percentage}%`,
+                              backgroundColor: theme.primary,
+                            },
+                          ]}
+                        />
                       </View>
                     </View>
                   </View>
@@ -160,14 +254,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginTop: 20
+    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: 20,
   },
   subtitle: {
     fontSize: 16,
     marginTop: 4,
-    textAlign: 'center'
+    textAlign: "center",
   },
   scrollContent: {
     padding: 24,
@@ -176,7 +270,7 @@ const styles = StyleSheet.create({
   statCard: {
     borderRadius: 20,
     padding: 24,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 32,
     elevation: 4,
     shadowOpacity: 0.3,
@@ -185,34 +279,34 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontSize: 48,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "#FFFFFF",
   },
   statLabel: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     marginTop: 4,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
   emptyState: {
-    alignItems: 'center',
+    alignItems: "center",
     padding: 32,
     borderRadius: 20,
     borderWidth: 1,
-    borderStyle: 'dashed',
+    borderStyle: "dashed",
   },
   emptyText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    textAlign: 'center',
+    textAlign: "center",
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
   },
   topOutfitCard: {
@@ -220,7 +314,7 @@ const styles = StyleSheet.create({
     padding: 24,
     marginBottom: 32,
     elevation: 2,
-    alignItems: 'center',
+    alignItems: "center",
   },
   badge: {
     paddingHorizontal: 12,
@@ -229,18 +323,18 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   badgeText: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 14,
   },
   topOutfitName: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   previewGrid: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     gap: 12,
   },
   previewImage: {
@@ -254,15 +348,15 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   itemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 16,
     borderBottomWidth: 1,
     paddingBottom: 16,
   },
   rankText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     width: 30,
   },
   itemThumbnail: {
@@ -276,16 +370,16 @@ const styles = StyleSheet.create({
   },
   itemStatsText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 6,
   },
   barBackground: {
     height: 8,
     borderRadius: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   barFill: {
-    height: '100%',
+    height: "100%",
     borderRadius: 4,
   },
 });
