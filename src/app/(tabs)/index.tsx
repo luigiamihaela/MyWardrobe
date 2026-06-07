@@ -78,12 +78,6 @@ export default function HomeScreen() {
 
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [weatherLoading, setWeatherLoading] = useState(true);
-  const [weather, setWeather] = useState<{
-    temp: number;
-    city: string;
-    desc: string;
-    icon: string;
-  } | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -91,7 +85,7 @@ export default function HomeScreen() {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
           setWeatherLoading(false);
-          console.log("Permisiunea pentru locație a fost respinsă.");
+          console.log("Location permission denied.");
           return;
         }
 
@@ -109,7 +103,7 @@ export default function HomeScreen() {
         setWeatherLoading(false);
       } catch (error) {
         setWeatherLoading(false);
-        console.error("Eroare la preluarea datelor meteo:", error);
+        console.error("Error fetching weather data:", error);
       }
     })();
   }, []);
@@ -183,7 +177,7 @@ export default function HomeScreen() {
           setOotd(null);
         }
       } catch (error) {
-        console.error("Eroare SQL:", error);
+        console.error("SQL error:", error);
         setOotd(null);
       }
     }, []),
