@@ -184,7 +184,36 @@ export default function HomeScreen() {
         console.error("SQL error:", error);
         setOotd(null);
       }
-    }, []),
+      const fetchWeather = async () => {
+        if (weatherData) return;
+
+        try {
+          let { status } = await Location.getForegroundPermissionsAsync();
+          if (status !== "granted") {
+            setWeatherLoading(false);
+            return;
+          }
+
+          setWeatherLoading(true);
+          let location = await Location.getCurrentPositionAsync({});
+          const lat = location.coords.latitude;
+          const lon = location.coords.longitude;
+          const API_KEY = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
+
+          const response = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`,
+          );
+          const data = await response.json();
+          setWeatherData(data);
+          setWeatherLoading(false);
+        } catch (error) {
+          setWeatherLoading(false);
+          console.error("Error fetching weather data:", error);
+        }
+      };
+
+      fetchWeather();
+    }, [weatherData]),
   );
 
   return (

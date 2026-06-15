@@ -5,10 +5,19 @@ import {
   getInfoAsync,
   makeDirectoryAsync,
 } from "expo-file-system/legacy";
+import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
 import React, { useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import ThemedButton from "../components/ThemedButton";
 import { useTheme } from "../context/ThemeContext";
 import db from "../database/db";
@@ -105,8 +114,49 @@ export default function SettingsScreen() {
     }
   };
 
+  const requestLocationPermission = async () => {
+    const { status, canAskAgain } =
+      await Location.getForegroundPermissionsAsync();
+
+    if (status === "granted") {
+      Alert.alert(
+        "Permission Active",
+        "The App already has access to your location. You can change this in your device's settings.",
+        [
+          { text: "Anulează", style: "cancel" },
+          { text: "Deschide Setări", onPress: () => Linking.openSettings() },
+        ],
+      );
+      return;
+    }
+
+    if (canAskAgain) {
+      const { status: newStatus } =
+        await Location.requestForegroundPermissionsAsync();
+      if (newStatus === "granted") {
+        Alert.alert(
+          "Succes",
+          "Permission has been granted! The weather will be displayed in Home screen.",
+        );
+      } else {
+        Alert.alert("Denied", "You have refused access to location.");
+      }
+    } else {
+      Alert.alert(
+        "Permission Blocked",
+        "You have previously blocked access to your location. Please activate it manually from your device's settings.",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Open Settings", onPress: () => Linking.openSettings() },
+        ],
+      );
+    }
+  };
+
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: theme.background }]}
+    >
       <View style={[styles.header, { borderBottomColor: theme.border }]}>
         <Text style={styles.title}>Settings ⚙️</Text>
         <Text style={[styles.subtitle, { color: theme.subtext }]}>
@@ -137,13 +187,7 @@ export default function SettingsScreen() {
             placeholder="Enter your name..."
             maxLength={20}
           />
-        </View>
-        <View
-          style={[
-            styles.card,
-            { backgroundColor: theme.card, borderColor: theme.border },
-          ]}
-        >
+
           <Text style={styles.cardTitle}>Data Portability</Text>
           <Text style={styles.cardDescription}>
             Your data is stored 100% offline on this device. You can export a
@@ -153,11 +197,21 @@ export default function SettingsScreen() {
 
           <ThemedButton title="📤 Export Backup" onPress={handleExport} />
 
-          <View style={styles.spacer} />
-
           <ThemedButton
             title="📥 Import Backup"
             onPress={handleImport}
+            variant="outline"
+          />
+
+          <Text style={styles.cardTitle}>Weather Info</Text>
+          <Text style={styles.cardDescription}>
+            You can grant the app access to your location in order to see
+            information about the weather in your area.
+          </Text>
+
+          <ThemedButton
+            title="📍 Location Permission"
+            onPress={requestLocationPermission}
             variant="outline"
           />
         </View>
@@ -167,7 +221,7 @@ export default function SettingsScreen() {
           logs, and statistics.
         </Text>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -210,7 +264,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#1A202C",
-    marginBottom: 12,
+    marginVertical: 12,
   },
   cardDescription: {
     fontSize: 14,
