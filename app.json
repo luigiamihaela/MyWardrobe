@@ -17,7 +17,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.luigia.MyWardrobe"
     },
     "web": {
       "output": "static",
@@ -37,11 +38,23 @@
       ],
       "expo-sqlite",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Grant permission for MyWardrobe to use your location in order to display the weather in Home screen."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ff6c6b8b-5e1c-4fed-8a9d-765ecc1fd48b"
+      }
     }
   }
 }

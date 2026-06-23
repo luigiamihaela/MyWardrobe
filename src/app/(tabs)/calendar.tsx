@@ -549,6 +549,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     marginTop: 4,
+    textAlign: "center",
   },
   controlsRow: {
     flexDirection: "row",

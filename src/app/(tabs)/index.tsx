@@ -89,7 +89,9 @@ export default function HomeScreen() {
           return;
         }
 
-        let location = await Location.getCurrentPositionAsync({});
+        let location = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
         const lat = location.coords.latitude;
         const lon = location.coords.longitude;
 
@@ -402,6 +404,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 24,
+    flexGrow: 1,
   },
 
   statsRow: {
@@ -515,6 +518,7 @@ const styles = StyleSheet.create({
   quoteContainer: {
     alignItems: "center",
     paddingHorizontal: 20,
+    marginVertical: "auto",
   },
   quoteText: {
     fontSize: 15,

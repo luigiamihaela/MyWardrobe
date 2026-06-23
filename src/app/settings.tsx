@@ -102,7 +102,7 @@ export default function SettingsScreen() {
         to: dbFilePath,
       });
 
-      Alert.alert("Success! 🎉", "Database restored successfully!", [
+      Alert.alert("Success!", "Database restored successfully!", [
         { text: "OK", onPress: () => router.replace("/") },
       ]);
     } catch (error) {
@@ -123,8 +123,8 @@ export default function SettingsScreen() {
         "Permission Active",
         "The App already has access to your location. You can change this in your device's settings.",
         [
-          { text: "Anulează", style: "cancel" },
-          { text: "Deschide Setări", onPress: () => Linking.openSettings() },
+          { text: "Cancel", style: "cancel" },
+          { text: "Open Settings", onPress: () => Linking.openSettings() },
         ],
       );
       return;
@@ -157,8 +157,8 @@ export default function SettingsScreen() {
     <ScrollView
       style={[styles.container, { backgroundColor: theme.background }]}
     >
-      <View style={[styles.header, { borderBottomColor: theme.border }]}>
-        <Text style={styles.title}>Settings ⚙️</Text>
+      <View style={[styles.header]}>
+        <Text style={styles.title}>Settings</Text>
         <Text style={[styles.subtitle, { color: theme.subtext }]}>
           Manage your data and privacy.
         </Text>
@@ -175,7 +175,7 @@ export default function SettingsScreen() {
             },
           ]}
         >
-          <Text style={styles.cardTitle}>My Profile 👤</Text>
+          <Text style={styles.cardTitle}>My Profile</Text>
           <Text style={styles.label}>Your Name:</Text>
           <TextInput
             style={[
@@ -217,8 +217,8 @@ export default function SettingsScreen() {
         </View>
 
         <Text style={styles.disclaimer}>
-          * Note: This backup saves your items, categories, outfits, calendar
-          logs, and statistics.
+          * Note: The backup saves your items, categories, outfits, calendar
+          logs and statistics.
         </Text>
       </View>
     </ScrollView>
@@ -231,21 +231,19 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 16,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
+    paddingTop: 10,
     elevation: 2,
   },
   title: {
     fontSize: 32,
     fontWeight: "bold",
     color: "#1A202C",
-    marginTop: 8,
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
     marginTop: 4,
+    textAlign: "center",
   },
   content: {
     padding: 24,
@@ -279,7 +277,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#A0AEC0",
     textAlign: "center",
-    marginTop: 24,
+    marginTop: 12,
+    marginBottom: 24,
     paddingHorizontal: 16,
   },
   label: {

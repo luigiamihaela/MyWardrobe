@@ -9,8 +9,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import db from "../database/db";
 import { useTheme } from "../context/ThemeContext";
+import db from "../database/db";
 
 const CATEGORIES = [
   { id: 1, label: "Tshirt" },
@@ -127,11 +127,16 @@ export default function AddItemScreen() {
         {imageUri ? (
           <Image source={{ uri: imageUri }} style={styles.image} />
         ) : (
-          <Text style={[styles.placeholderText, { color: theme.subtext }]}>No image selected</Text>
+          <Text style={[styles.placeholderText, { color: theme.subtext }]}>
+            No image selected
+          </Text>
         )}
       </View>
 
-      <TouchableOpacity style={[styles.button, { backgroundColor: theme.primary }]} onPress={pickImage}>
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: theme.primary }]}
+        onPress={pickImage}
+      >
         <Text style={styles.buttonText}>
           {imageUri ? "Change Photo" : "Open Gallery"}
         </Text>
@@ -140,7 +145,9 @@ export default function AddItemScreen() {
       {imageUri && (
         <View style={styles.filtersContainer}>
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Category:</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              Category:
+            </Text>
             <View style={styles.chipsContainer}>
               {CATEGORIES.map((cat) => (
                 <TouchableOpacity
@@ -148,7 +155,10 @@ export default function AddItemScreen() {
                   style={[
                     styles.chip,
                     { backgroundColor: theme.card, borderColor: theme.border },
-                    categoryId === cat.id && { backgroundColor: theme.primary, borderColor: theme.primary },
+                    categoryId === cat.id && {
+                      backgroundColor: theme.primary,
+                      borderColor: theme.primary,
+                    },
                   ]}
                   onPress={() => setCategoryId(cat.id)}
                 >
@@ -167,7 +177,9 @@ export default function AddItemScreen() {
           </View>
 
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Season:</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              Season:
+            </Text>
             <View style={styles.chipsContainer}>
               {SEASONS.map((s) => (
                 <TouchableOpacity
@@ -175,7 +187,10 @@ export default function AddItemScreen() {
                   style={[
                     styles.chip,
                     { backgroundColor: theme.card, borderColor: theme.border },
-                    season === s && { backgroundColor: theme.primary, borderColor: theme.primary },
+                    season === s && {
+                      backgroundColor: theme.primary,
+                      borderColor: theme.primary,
+                    },
                   ]}
                   onPress={() => setSeason(s)}
                 >
@@ -194,7 +209,9 @@ export default function AddItemScreen() {
           </View>
 
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>Color:</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              Color:
+            </Text>
             <View style={styles.chipsContainer}>
               {COLORS.map((c) => (
                 <TouchableOpacity
@@ -202,7 +219,10 @@ export default function AddItemScreen() {
                   style={[
                     styles.chip,
                     { backgroundColor: theme.card, borderColor: theme.border },
-                    color === c && { backgroundColor: theme.primary, borderColor: theme.primary },
+                    color === c && {
+                      backgroundColor: theme.primary,
+                      borderColor: theme.primary,
+                    },
                   ]}
                   onPress={() => setColor(c)}
                 >
@@ -220,7 +240,10 @@ export default function AddItemScreen() {
             </View>
           </View>
 
-          <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.primary }]} onPress={saveItem}>
+          <TouchableOpacity
+            style={[styles.saveButton, { backgroundColor: theme.primary }]}
+            onPress={saveItem}
+          >
             <Text style={styles.saveButtonText}>Save to Wardrobe</Text>
           </TouchableOpacity>
         </View>
