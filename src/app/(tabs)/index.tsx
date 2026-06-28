@@ -222,7 +222,7 @@ export default function HomeScreen() {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
         <View style={{ flex: 1, marginRight: 16 }}>
-          <Text style={styles.title} numberOfLines={2}>
+          <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
             Hello, {username}!
           </Text>
         </View>
