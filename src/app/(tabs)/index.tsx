@@ -25,7 +25,6 @@ const STYLE_QUOTES = [
   "Style is something each of us already has, all we need to do is find it. - Diane von Furstenberg",
   "Fashion is the armor to survive the reality of everyday life. - Bill Cunningham",
   "I don't design clothes. I design dreams. - Ralph Lauren",
-  "Fashions fade, style is eternal. - Yves Saint Laurent",
   "How can you live the high life if you do not wear the high heels? - Sonia Rykiel",
   "In difficult times, fashion is always outrageous. - Elsa Schiaparelli",
 ];
