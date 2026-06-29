@@ -130,21 +130,25 @@ export default function WardrobeScreen() {
   };
 
   const renderItem = ({ item }: { item: ClothesItem }) => (
-    <View style={styles.card}>
-      <View style={styles.imageContainer}>
+    <View style={[styles.card, { backgroundColor: theme.card }]}>
+      <View style={[styles.imageContainer, { backgroundColor: theme.border }]}>
         <Image source={{ uri: item.image_uri }} style={styles.image} />
       </View>
 
-      <View style={styles.infoContainer}>
-        <Text style={styles.categoryText}>
+      <View
+        style={[styles.infoContainer, { borderTopColor: theme.background }]}
+      >
+        <Text style={[styles.categoryText, { color: theme.text }]}>
           {item.category_id ? CATEGORY_MAP[item.category_id] : "No category"}
         </Text>
         <View style={styles.actionsContainer}>
           <TouchableOpacity
             onPress={() => openEditModal(item)}
-            style={styles.editButton}
+            style={[styles.editButton, { backgroundColor: theme.iconBtn }]}
           >
-            <Text style={styles.editButtonText}>Edit</Text>
+            <Text style={[styles.editButtonText, { color: theme.primary }]}>
+              Edit
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => deleteItem(item.id)}
@@ -160,10 +164,7 @@ export default function WardrobeScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.text }]}>
-          {" "}
-          My Collection
-        </Text>
+        <Text style={[styles.title, { color: theme.text }]}>My Collection</Text>
         <TouchableOpacity
           style={[styles.addButton, { backgroundColor: theme.primary }]}
           onPress={() => router.push("/add")}
@@ -174,8 +175,12 @@ export default function WardrobeScreen() {
 
       {clothes.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>Your closet is empty.</Text>
-          <Text style={styles.emptySubtext}>Go back and add some items!</Text>
+          <Text style={[styles.emptyText, { color: theme.text }]}>
+            Your closet is empty.
+          </Text>
+          <Text style={[styles.emptySubtext, { color: theme.subtext }]}>
+            Go back and add some items!
+          </Text>
         </View>
       ) : (
         <FlatList
@@ -189,36 +194,52 @@ export default function WardrobeScreen() {
         />
       )}
 
+      {/* --- MODALUL DE EDITARE STILIZAT --- */}
       <Modal
         visible={isEditModalVisible}
         animationType="slide"
         transparent={true}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Edit Item Attributes</Text>
+          <View
+            style={[styles.modalContent, { backgroundColor: theme.background }]}
+          >
+            <Text style={[styles.modalTitle, { color: theme.text }]}>
+              Edit Item Attributes
+            </Text>
 
             <ScrollView
               showsVerticalScrollIndicator={false}
               style={styles.modalForm}
             >
-              <Text style={styles.formLabel}>Category:</Text>
+              <Text style={[styles.formLabel, { color: theme.text }]}>
+                Category:
+              </Text>
               <View style={styles.chipsGrid}>
                 {Object.keys(CATEGORY_MAP).map((key) => {
                   const id = Number(key);
+                  const isSelected = editCategory === id;
                   return (
                     <TouchableOpacity
                       key={id}
                       style={[
                         styles.chip,
-                        editCategory === id && styles.chipActiveBlue,
+                        {
+                          backgroundColor: theme.card,
+                          borderColor: theme.border,
+                        },
+                        isSelected && {
+                          backgroundColor: theme.primary,
+                          borderColor: theme.primary,
+                        },
                       ]}
                       onPress={() => setEditCategory(id)}
                     >
                       <Text
                         style={[
                           styles.chipText,
-                          editCategory === id && styles.chipTextActive,
+                          { color: theme.text },
+                          isSelected && { color: "#FFFFFF" },
                         ]}
                       >
                         {CATEGORY_MAP[id]}
@@ -228,61 +249,99 @@ export default function WardrobeScreen() {
                 })}
               </View>
 
-              <Text style={styles.formLabel}>Color:</Text>
+              <Text style={[styles.formLabel, { color: theme.text }]}>
+                Color:
+              </Text>
               <View style={styles.chipsGrid}>
-                {COLORS.map((c) => (
-                  <TouchableOpacity
-                    key={c}
-                    style={[
-                      styles.chip,
-                      editColor === c && styles.chipActiveRed,
-                    ]}
-                    onPress={() => setEditColor(c)}
-                  >
-                    <Text
+                {COLORS.map((c) => {
+                  const isSelected = editColor === c;
+                  return (
+                    <TouchableOpacity
+                      key={c}
                       style={[
-                        styles.chipText,
-                        editColor === c && styles.chipTextActive,
+                        styles.chip,
+                        {
+                          backgroundColor: theme.card,
+                          borderColor: theme.border,
+                        },
+                        isSelected && {
+                          backgroundColor: theme.primary,
+                          borderColor: theme.primary,
+                        },
                       ]}
+                      onPress={() => setEditColor(c)}
                     >
-                      {c}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                      <Text
+                        style={[
+                          styles.chipText,
+                          { color: theme.text },
+                          isSelected && { color: "#FFFFFF" },
+                        ]}
+                      >
+                        {c}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
 
-              <Text style={styles.formLabel}>Season:</Text>
+              <Text style={[styles.formLabel, { color: theme.text }]}>
+                Season:
+              </Text>
               <View style={styles.chipsGrid}>
-                {SEASONS.map((s) => (
-                  <TouchableOpacity
-                    key={s}
-                    style={[
-                      styles.chip,
-                      editSeason === s && styles.chipActivePurple,
-                    ]}
-                    onPress={() => setEditSeason(s)}
-                  >
-                    <Text
+                {SEASONS.map((s) => {
+                  const isSelected = editSeason === s;
+                  return (
+                    <TouchableOpacity
+                      key={s}
                       style={[
-                        styles.chipText,
-                        editSeason === s && styles.chipTextActive,
+                        styles.chip,
+                        {
+                          backgroundColor: theme.card,
+                          borderColor: theme.border,
+                        },
+                        isSelected && {
+                          backgroundColor: theme.primary,
+                          borderColor: theme.primary,
+                        },
                       ]}
+                      onPress={() => setEditSeason(s)}
                     >
-                      {s}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                      <Text
+                        style={[
+                          styles.chipText,
+                          { color: theme.text },
+                          isSelected && { color: "#FFFFFF" },
+                        ]}
+                      >
+                        {s}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
             </ScrollView>
 
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={styles.cancelBtn}
+                style={[
+                  styles.cancelBtn,
+                  {
+                    backgroundColor: theme.card,
+                    borderColor: theme.border,
+                    borderWidth: 1,
+                  },
+                ]}
                 onPress={() => setIsEditModalVisible(false)}
               >
-                <Text style={styles.cancelBtnText}>Cancel</Text>
+                <Text style={[styles.cancelBtnText, { color: theme.text }]}>
+                  Cancel
+                </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.saveBtn} onPress={saveChanges}>
+              <TouchableOpacity
+                style={[styles.saveBtn, { backgroundColor: theme.primary }]}
+                onPress={saveChanges}
+              >
                 <Text style={styles.saveBtnText}>Save Changes</Text>
               </TouchableOpacity>
             </View>
