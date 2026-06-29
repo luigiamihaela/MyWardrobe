@@ -11,6 +11,10 @@ type TopOutfitData = {
   d_uri: string | null;
   t_uri: string | null;
   b_uri: string | null;
+  s_uri?: string | null;
+  o_uri?: string | null;
+  h_uri?: string | null;
+  p_uri?: string | null;
 };
 
 type TopItemData = {
@@ -40,15 +44,28 @@ export default function InsightsScreen() {
       setTotalLogs(logsCountResult?.total || 0);
 
       const topOutfitsQuery = `
-        SELECT o.id, o.name, COUNT(l.id) as wear_count,
-               d.image_uri AS d_uri, t.image_uri AS t_uri, b.image_uri AS b_uri
+        SELECT 
+          o.id,
+          o.name,
+          COUNT(l.id) as wear_count,
+          c_dress.image_uri as d_uri,
+          c_top.image_uri as t_uri,
+          c_bottom.image_uri as b_uri,
+          c_shoes.image_uri as s_uri,
+          c_outerwear.image_uri as o_uri,
+          c_hat.image_uri as h_uri,
+          c_purse.image_uri as p_uri
         FROM outfit_logs l
         JOIN outfits o ON l.outfit_id = o.id
-        LEFT JOIN clothes d ON o.dress_id = d.id
-        LEFT JOIN clothes t ON o.top_id = t.id
-        LEFT JOIN clothes b ON o.bottom_id = b.id
+        LEFT JOIN clothes c_dress ON o.dress_id = c_dress.id
+        LEFT JOIN clothes c_top ON o.top_id = c_top.id
+        LEFT JOIN clothes c_bottom ON o.bottom_id = c_bottom.id
+        LEFT JOIN clothes c_shoes ON o.shoes_id = c_shoes.id
+        LEFT JOIN clothes c_outerwear ON o.outerwear_id = c_outerwear.id
+        LEFT JOIN clothes c_hat ON o.hat_id = c_hat.id
+        LEFT JOIN clothes c_purse ON o.purse_id = c_purse.id
         GROUP BY o.id
-        ORDER BY wear_count DESC, o.id DESC
+        ORDER BY wear_count DESC
         LIMIT 3
       `;
       const outfitsResult = db.getAllSync<TopOutfitData>(topOutfitsQuery);
@@ -151,7 +168,12 @@ export default function InsightsScreen() {
                   {outfit.name}
                 </Text>
 
-                <View style={styles.previewGrid}>
+                <View
+                  style={[
+                    styles.previewGrid,
+                    { flexWrap: "wrap", justifyContent: "center", gap: 8 },
+                  ]}
+                >
                   {outfit.d_uri && (
                     <Image
                       source={{ uri: outfit.d_uri }}
@@ -173,6 +195,42 @@ export default function InsightsScreen() {
                   {outfit.b_uri && (
                     <Image
                       source={{ uri: outfit.b_uri }}
+                      style={[
+                        styles.previewImage,
+                        { backgroundColor: theme.border },
+                      ]}
+                    />
+                  )}
+                  {outfit.s_uri && (
+                    <Image
+                      source={{ uri: outfit.s_uri }}
+                      style={[
+                        styles.previewImage,
+                        { backgroundColor: theme.border },
+                      ]}
+                    />
+                  )}
+                  {outfit.o_uri && (
+                    <Image
+                      source={{ uri: outfit.o_uri }}
+                      style={[
+                        styles.previewImage,
+                        { backgroundColor: theme.border },
+                      ]}
+                    />
+                  )}
+                  {outfit.h_uri && (
+                    <Image
+                      source={{ uri: outfit.h_uri }}
+                      style={[
+                        styles.previewImage,
+                        { backgroundColor: theme.border },
+                      ]}
+                    />
+                  )}
+                  {outfit.p_uri && (
+                    <Image
+                      source={{ uri: outfit.p_uri }}
                       style={[
                         styles.previewImage,
                         { backgroundColor: theme.border },
